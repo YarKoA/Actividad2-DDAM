@@ -11,6 +11,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Actividad2DDAM">
+
+        <!-- Pantalla Principal (Login) -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -23,6 +25,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Segunda Pantalla (Añadir actividad) -->
+        <activity
+            android:name=".MainstreamActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Actividad2DDAM"
+            android:windowSoftInputMode="adjustResize" />
+
     </application>
 
 </manifest>
