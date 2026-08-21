@@ -4,16 +4,16 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.example.actividad2_ddam.ui.theme.Actividad2DDAMTheme
 
-// --- Punto 1:las funciones-
+// --- Punto 1: Funciones principales ---
 // Por: Ricardo
 
 // Función botón login
@@ -27,7 +27,7 @@ fun crearActividad(titulo: String, hora: String, dia: String): String {
 }
 
 
-// Lo que falta
+// --- Espacio para el equipo ---
 // Punto 2: Colección de datos
 // Punto 3: Manejo de excepciones y null safety
 // Punto 4: Clase, Objeto e Interfaz
@@ -38,37 +38,65 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-        // Pruebas rápidas en consola para checar que mis funciones si sirvan
-        val loginOk = autenticarUsuario("Ricardo", true)
-        val nuevaTarea = crearActividad("Salir a trotar", "10:30 am", "Vie")
-        println("Login estado: $loginOk | $nuevaTarea")
-
         setContent {
             Actividad2DDAMTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Ricardo",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    TareumPantalla(modifier = Modifier.padding(innerPadding))
                 }
             }
         }
     }
 }
 
+// UI con botones conectados a las funciones de Ricardo
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Que onda wey $name!",
+fun TareumPantalla(modifier: Modifier = Modifier) {
+    var resultado by remember { mutableStateOf("Esperando acción...") }
+
+    Column(
         modifier = modifier
-    )
+            .fillMaxSize()
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = "TAREUM", style = MaterialTheme.typography.headlineMedium)
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Botón login
+        Button(
+            onClick = {
+                val ok = autenticarUsuario("Ricardo", true)
+                resultado = if (ok) "Inicio de sesión correcto" else "Error al ingresar"
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Ingresar como USER")
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Botón crear actividad
+        Button(
+            onClick = {
+                resultado = crearActividad("Salir a trotar", "10:30 am", "Vie")
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Crear Actividad")
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(text = resultado, style = MaterialTheme.typography.bodyMedium)
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun TareumPreview() {
     Actividad2DDAMTheme {
-        Greeting("Android")
+        TareumPantalla()
     }
 }
