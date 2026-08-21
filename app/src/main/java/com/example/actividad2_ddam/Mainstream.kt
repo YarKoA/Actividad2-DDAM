@@ -122,22 +122,32 @@ fun MainstreamScreen(onBack: () -> Unit) {
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Botón Crear Actividad (Llama a tu función)
+                // Botón Crear Actividad (usa la clase Tarea del Punto 4)
                 Button(
                     onClick = {
-                        mensajeConfirmacion = crearActividad(
+                
+                        val tarea = Tarea(
                             titulo = if (titulo.isBlank()) "Sin título" else titulo,
+                            descripcion = descripcion,
                             hora = "9:30 am",
                             dia = "Vie"
                         )
+                
+                        mensajeConfirmacion = tarea.mostrarInformacion()
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
                     shape = RoundedCornerShape(20.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5A93BE))
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF5A93BE)
+                    )
                 ) {
-                    Text("Crear Actividad", color = Color.White, fontWeight = FontWeight.Bold)
+                    Text(
+                        "Crear Actividad",
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
 
                 if (mensajeConfirmacion.isNotEmpty()) {
