@@ -40,6 +40,27 @@ fun crearActividad(titulo: String, hora: String, dia: String): String {
 // Punto 2: Colección de datos
 // Punto 3: Manejo de excepciones y null safety
 // Punto 4: Clase, Objeto e Interfaz
+
+interface GestionTarea {
+    fun mostrarInformacion(): String
+}
+
+class Tarea(
+    val titulo: String,
+    val descripcion: String,
+    val hora: String,
+    val dia: String,
+    var completada: Boolean = false
+) : GestionTarea {
+
+    override fun mostrarInformacion(): String {
+        return "$titulo - $dia a las $hora"
+    }
+}
+
+object ConfiguracionApp {
+    const val NOMBRE_APP = "TAREUM"
+}
 // Punto 5: Función lambda / orden superior
 
 
@@ -83,7 +104,7 @@ fun LoginScreen() {
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = "TAREUM",
+                text = ConfiguracionApp.NOMBRE_APP,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF1E2A38)
