@@ -42,8 +42,17 @@ fun MainstreamScreen(alCerrar: () -> Unit) {
 
                 Button(
                     onClick = {
-                        Repo.tareas.add(Tarea(if(tit.isEmpty()) "Sin título" else tit, des, "9:30 am", "Vie"))
-                        alCerrar()
+                        // Manejo de excepciones: intentamos crear la tarea
+                        try {
+                            // Si el titulo esta vacio, lanzamos un error a proposito
+                            if (tit.isBlank()) throw Exception("El título no puede estar vacío")
+                            
+                            Repo.tareas.add(Tarea(tit, des, "9:30 am", "Vie"))
+                            alCerrar()
+                        } catch (e: Exception) {
+                            // Aqui atrapamos el error para que la app no se cierre
+                            println("Error al crear tarea: ${e.message}")
+                        }
                     },
                     modifier = Modifier.fillMaxWidth().height(50.dp),
                     shape = RoundedCornerShape(25.dp),

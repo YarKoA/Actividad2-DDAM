@@ -101,7 +101,8 @@ fun TareaCard(t: Tarea) {
             Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
                 Column {
                     Text(t.titulo, fontWeight = FontWeight.Bold)
-                    Text(t.desc, fontSize = 12.sp, color = Color.DarkGray)
+                    // Uso de Null Safety: si la descripcion es nula, muestra un texto por defecto
+                    Text(t.desc ?: "Sin descripción adicional", fontSize = 12.sp, color = Color.DarkGray)
                 }
                 Text("A las: ${t.hora}", fontSize = 12.sp, color = Color(0xFF4A6B8A))
             }
