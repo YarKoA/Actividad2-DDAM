@@ -22,144 +22,54 @@ class MainstreamActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent {
-            Actividad2DDAMTheme {
-                MainstreamScreen(onBack = { finish() })
+        setContent { Actividad2DDAMTheme { MainstreamScreen { finish() } } }
+    }
+}
+
+@Composable
+fun MainstreamScreen(alCerrar: () -> Unit) {
+    var tit by remember { mutableStateOf("") }
+    var des by remember { mutableStateOf("") }
+    val fondo = Brush.verticalGradient(listOf(Color(0xFF2E3B55), Color(0xFF6B93B5), Color(0xFF9ABED4)))
+
+    Box(Modifier.fillMaxSize().background(fondo).padding(16.dp), Alignment.Center) {
+        Card(Modifier.fillMaxWidth(), RoundedCornerShape(24.dp), CardDefaults.cardColors(Color(0xFFDCE7F0))) {
+            Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Text("Añadir actividad", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color(0xFF2C567A))
+                
+                CampoTexto("Ingresa un título *", tit) { tit = it }
+                CampoTexto("Ingresa una descripción", des) { des = it }
+
+                Button(
+                    onClick = {
+                        Repo.tareas.add(Tarea(if(tit.isEmpty()) "Sin título" else tit, des, "9:30 am", "Vie"))
+                        alCerrar()
+                    },
+                    modifier = Modifier.fillMaxWidth().height(50.dp),
+                    shape = RoundedCornerShape(25.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5A93BE))
+                ) {
+                    Text("Crear Actividad", color = Color.White, fontWeight = FontWeight.Bold)
+                }
             }
         }
     }
 }
 
 @Composable
-fun MainstreamScreen(onBack: () -> Unit) {
-    var titulo by remember { mutableStateOf("") }
-    var descripcion by remember { mutableStateOf("") }
-    var mensajeConfirmacion by remember { mutableStateOf("") }
-
-    val backgroundGradient = Brush.verticalGradient(
-        colors = listOf(Color(0xFF2E3B55), Color(0xFF6B93B5), Color(0xFF9ABED4))
-    )
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(backgroundGradient)
-            .padding(16.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 24.dp, bottom = 24.dp),
-            shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFDCE7F0))
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp),
-                horizontalAlignment = Alignment.Start
-            ) {
-                Text(
-                    text = "Añadir actividad",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF2C567A)
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text("Ingresa un título *", fontSize = 13.sp, color = Color(0xFF333333))
-                OutlinedTextField(
-                    value = titulo,
-                    onValueChange = { titulo = it },
-                    placeholder = { Text("Ingresar", fontSize = 13.sp) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 4.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFFB4C8D8),
-                        unfocusedContainerColor = Color(0xFFB4C8D8),
-                        unfocusedBorderColor = Color.Transparent
-                    )
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Text("Ingresa una descripción", fontSize = 13.sp, color = Color(0xFF333333))
-                OutlinedTextField(
-                    value = descripcion,
-                    onValueChange = { descripcion = it },
-                    placeholder = { Text("Ingresar", fontSize = 13.sp) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(80.dp)
-                        .padding(top = 4.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFFB4C8D8),
-                        unfocusedContainerColor = Color(0xFFB4C8D8),
-                        unfocusedBorderColor = Color.Transparent
-                    )
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("Define una hora:", fontSize = 13.sp, color = Color(0xFF333333))
-                    SuggestionChip(
-                        onClick = { },
-                        label = { Text("9:30 am", color = Color.White) },
-                        colors = SuggestionChipDefaults.suggestionChipColors(containerColor = Color(0xFF4A7C9F)),
-                        border = null
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // Botón Crear Actividad (usa la clase Tarea del Punto 4)
-                Button(
-                    onClick = {
-                
-                        val tarea = Tarea(
-                            titulo = if (titulo.isBlank()) "Sin título" else titulo,
-                            descripcion = descripcion,
-                            hora = "9:30 am",
-                            dia = "Vie"
-                        )
-                
-                        mensajeConfirmacion = tarea.mostrarInformacion()
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    shape = RoundedCornerShape(20.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF5A93BE)
-                    )
-                ) {
-                    Text(
-                        "Crear Actividad",
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                if (mensajeConfirmacion.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = mensajeConfirmacion,
-                        fontSize = 12.sp,
-                        color = Color(0xFF1E415F),
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-            }
-        }
+fun CampoTexto(label: String, valor: String, cambio: (String) -> Unit) {
+    Column {
+        Text(label, fontSize = 13.sp)
+        OutlinedTextField(
+            value = valor,
+            onValueChange = cambio,
+            modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = Color(0xFFB4C8D8),
+                unfocusedContainerColor = Color(0xFFB4C8D8),
+                unfocusedBorderColor = Color.Transparent
+            )
+        )
     }
 }

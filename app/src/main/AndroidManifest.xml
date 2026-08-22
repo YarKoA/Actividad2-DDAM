@@ -26,7 +26,14 @@
             </intent-filter>
         </activity>
 
-        <!-- Segunda Pantalla (Añadir actividad) -->
+        <!-- Segunda Pantalla (Menú Principal) -->
+        <activity
+            android:name=".MainMenuActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Actividad2DDAM"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- Tercera Pantalla (Añadir actividad) -->
         <activity
             android:name=".MainstreamActivity"
             android:exported="false"
