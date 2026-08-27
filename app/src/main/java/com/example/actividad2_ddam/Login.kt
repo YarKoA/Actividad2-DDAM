@@ -1,5 +1,6 @@
 package com.example.actividad2_ddam
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -22,25 +23,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.actividad2_ddam.ui.theme.Actividad2DDAMTheme
 
-
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         enableEdgeToEdge()
 
         setContent {
-
             Actividad2DDAMTheme {
-
                 LoginScreen(
-
-                    // Aquí después se conecta para que lo conectes richi
-
                     onIngresar = {
-
-
+                        // Navegación hacia tu pantalla (MainMenuActivity)
+                        val intent = Intent(this, MainMenuActivity::class.java)
+                        startActivity(intent)
                     }
                 )
             }
@@ -48,15 +43,13 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
 @Composable
 fun LoginScreen(
     onIngresar: () -> Unit
 ) {
-
     val context = LocalContext.current
 
-    // Fondo degradado parecido al diseño
+    // Fondo degradado
     val fondo = Brush.verticalGradient(
         colors = listOf(
             Color(0xFF33436F),
@@ -65,14 +58,12 @@ fun LoginScreen(
         )
     )
 
-
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(fondo)
             .padding(horizontal = 24.dp)
     ) {
-
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -80,29 +71,16 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-
-
-            // LOGO ----------------------------------
-
-
+            // LOGO
             Image(
-                painter = painterResource(
-                    id = R.drawable.logo_tareum
-                ),
+                painter = painterResource(id = R.drawable.logo_tareum),
                 contentDescription = "Logo TAREUM",
                 modifier = Modifier.size(150.dp)
             )
 
+            Spacer(modifier = Modifier.height(4.dp))
 
-            Spacer(
-                modifier = Modifier.height(4.dp)
-            )
-
-
-
-            // NOMBRE DE LA APP ------------------------------------
-
-
+            // NOMBRE DE LA APP
             Text(
                 text = "TAREUM",
                 fontSize = 24.sp,
@@ -110,36 +88,21 @@ fun LoginScreen(
                 color = Color.White
             )
 
+            Spacer(modifier = Modifier.height(34.dp))
 
-            Spacer(
-                modifier = Modifier.height(34.dp)
-            )
-
-
-            // INGRESAR COMO USER ---------------------------------
-
-
+            // BOTÓN: INGRESAR COMO USER
             Button(
                 onClick = {
-
-                    // Esta función permitirá conectar
-                    // posteriormente la siguiente pantalla
-
                     onIngresar()
-
                 },
-
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
-
                 shape = RoundedCornerShape(28.dp),
-
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFFEDE2FF)
                 )
             ) {
-
                 Text(
                     text = "Ingresar como USER",
                     color = Color(0xFF385A79),
@@ -148,43 +111,32 @@ fun LoginScreen(
                 )
             }
 
+            Spacer(modifier = Modifier.height(26.dp))
 
-            Spacer(
-                modifier = Modifier.height(26.dp)
-            )
-
-
-
-            // INGRESAR CON GOOGLE ----------------------------------------
-
-
+            // BOTÓN: INGRESAR CON GOOGLE
             Button(
                 onClick = {
-
                     Toast.makeText(
                         context,
                         "Inicio de sesión correcto con Google",
                         Toast.LENGTH_SHORT
                     ).show()
 
+                    // Conexión para avanzar a Home tras el Toast
+                    onIngresar()
                 },
-
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
-
                 shape = RoundedCornerShape(28.dp),
-
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFFEDE2FF)
                 )
             ) {
-
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
-
                     Text(
                         text = "Ingresar con cuenta de Google",
                         color = Color(0xFF385A79),
@@ -192,13 +144,8 @@ fun LoginScreen(
                         fontWeight = FontWeight.Medium
                     )
 
+                    Spacer(modifier = Modifier.width(10.dp))
 
-                    Spacer(
-                        modifier = Modifier.width(10.dp)
-                    )
-
-
-                    // G sencilla para representar Google
                     Text(
                         text = "G",
                         color = Color(0xFF4285F4),
@@ -208,22 +155,13 @@ fun LoginScreen(
                 }
             }
 
+            Spacer(modifier = Modifier.height(12.dp))
 
-            Spacer(
-                modifier = Modifier.height(12.dp)
-            )
-
-
-
-            // TEXTO INFERIOR -------------------------------------------------------
-
-
+            // TEXTO INFERIOR
             Text(
                 text = "*Permite conectar tu calendario con la app",
                 fontSize = 11.sp,
-                color = Color.White.copy(
-                    alpha = 0.90f
-                )
+                color = Color.White.copy(alpha = 0.90f)
             )
         }
     }
