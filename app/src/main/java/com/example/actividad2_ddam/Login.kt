@@ -1,7 +1,7 @@
 package com.example.actividad2_ddam
 
-import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -10,7 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -22,85 +22,209 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.actividad2_ddam.ui.theme.Actividad2DDAMTheme
 
+
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         enableEdgeToEdge()
-        setContent { Actividad2DDAMTheme { LoginScreen() } }
-    }
-}
 
-@Composable
-fun LoginScreen() {
-    val ctx = LocalContext.current
-    val fondo = Brush.verticalGradient(listOf(Color(0xFF2E3B55), Color(0xFF6B93B5), Color(0xFF9ABED4)))
-    
-    // Variables para guardar lo que el usuario escribe
-    var usuario by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+        setContent {
 
-    Box(Modifier.fillMaxSize().background(fondo), Alignment.Center) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(24.dp)) {
-            Image(painterResource(R.drawable.logo), "Logo", Modifier.size(130.dp))
-            Text("TAREUM", fontSize = 26.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E2A38))
-            
-            Spacer(Modifier.height(32.dp))
+            Actividad2DDAMTheme {
 
-            // Campo para el usuario
-            OutlinedTextField(
-                value = usuario,
-                onValueChange = { usuario = it },
-                label = { Text("Usuario") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedContainerColor = Color.White.copy(0.2f),
-                    focusedContainerColor = Color.White.copy(0.3f)
+                LoginScreen(
+
+                    // Aquí después se conecta para que lo conectes richi
+
+                    onIngresar = {
+
+
+                    }
                 )
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            // Campo para la contraseña
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Contraseña") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedContainerColor = Color.White.copy(0.2f),
-                    focusedContainerColor = Color.White.copy(0.3f)
-                )
-            )
-
-            Spacer(Modifier.height(32.dp))
-            
-            BotonRedondo("Ingresar como USER") { 
-                if (usuario.isNotEmpty()) {
-                    ctx.startActivity(Intent(ctx, MainMenuActivity::class.java)) 
-                }
             }
-            Spacer(Modifier.height(16.dp))
-            BotonRedondo("Ingresar con cuenta de Google") { 
-                ctx.startActivity(Intent(ctx, MainMenuActivity::class.java)) 
-            }
-            
-            Spacer(Modifier.height(12.dp))
-            Text("*Permite conectar tu calendario", fontSize = 11.sp, color = Color.White)
         }
     }
 }
 
-// Componente reutilizable para los botones blancos
+
 @Composable
-fun BotonRedondo(texto: String, alClick: () -> Unit) {
-    Button(
-        onClick = alClick,
-        modifier = Modifier.fillMaxWidth().height(50.dp),
-        shape = RoundedCornerShape(25.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = Color.White)
+fun LoginScreen(
+    onIngresar: () -> Unit
+) {
+
+    val context = LocalContext.current
+
+    // Fondo degradado parecido al diseño
+    val fondo = Brush.verticalGradient(
+        colors = listOf(
+            Color(0xFF33436F),
+            Color(0xFF4B84A8),
+            Color(0xFF8BB8D0)
+        )
+    )
+
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(fondo)
+            .padding(horizontal = 24.dp)
     ) {
-        Text(texto, color = Color(0xFF3B608C), fontWeight = FontWeight.Bold)
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.Center),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+
+
+            // LOGO ----------------------------------
+
+
+            Image(
+                painter = painterResource(
+                    id = R.drawable.logo_tareum
+                ),
+                contentDescription = "Logo TAREUM",
+                modifier = Modifier.size(150.dp)
+            )
+
+
+            Spacer(
+                modifier = Modifier.height(4.dp)
+            )
+
+
+
+            // NOMBRE DE LA APP ------------------------------------
+
+
+            Text(
+                text = "TAREUM",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+
+
+            Spacer(
+                modifier = Modifier.height(34.dp)
+            )
+
+
+            // INGRESAR COMO USER ---------------------------------
+
+
+            Button(
+                onClick = {
+
+                    // Esta función permitirá conectar
+                    // posteriormente la siguiente pantalla
+
+                    onIngresar()
+
+                },
+
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+
+                shape = RoundedCornerShape(28.dp),
+
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFEDE2FF)
+                )
+            ) {
+
+                Text(
+                    text = "Ingresar como USER",
+                    color = Color(0xFF385A79),
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+
+
+            Spacer(
+                modifier = Modifier.height(26.dp)
+            )
+
+
+
+            // INGRESAR CON GOOGLE ----------------------------------------
+
+
+            Button(
+                onClick = {
+
+                    Toast.makeText(
+                        context,
+                        "Inicio de sesión correcto con Google",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                },
+
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+
+                shape = RoundedCornerShape(28.dp),
+
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFEDE2FF)
+                )
+            ) {
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+
+                    Text(
+                        text = "Ingresar con cuenta de Google",
+                        color = Color(0xFF385A79),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+
+
+                    Spacer(
+                        modifier = Modifier.width(10.dp)
+                    )
+
+
+                    // G sencilla para representar Google
+                    Text(
+                        text = "G",
+                        color = Color(0xFF4285F4),
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
+
+
+
+            // TEXTO INFERIOR -------------------------------------------------------
+
+
+            Text(
+                text = "*Permite conectar tu calendario con la app",
+                fontSize = 11.sp,
+                color = Color.White.copy(
+                    alpha = 0.90f
+                )
+            )
+        }
     }
 }
