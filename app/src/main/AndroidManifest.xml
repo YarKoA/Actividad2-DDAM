@@ -52,6 +52,12 @@
             android:exported="false"
             android:theme="@style/Theme.Actividad2DDAM" />
 
+        <!-- Pantalla de Settings-->
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Actividad2DDAM"/>
+
     </application>
 
 </manifest>

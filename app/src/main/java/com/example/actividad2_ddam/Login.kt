@@ -112,8 +112,7 @@ fun LoginScreen(onIngresar: () -> Unit) {
             // Acceso alternativo mediante cuenta externa
             Button(
                 onClick = {
-                    Toast.makeText(context, "Inicio con Google", Toast.LENGTH_SHORT).show()
-                    onIngresar()
+                    Toast.makeText(context, "Funcionalidad no disponible", Toast.LENGTH_SHORT).show()
                 },
                 modifier = Modifier
                     .fillMaxWidth()

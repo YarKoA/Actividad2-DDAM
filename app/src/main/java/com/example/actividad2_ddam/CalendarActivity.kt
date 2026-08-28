@@ -120,7 +120,10 @@ fun CalendarScreen() {
                 modifier = Modifier.fillMaxWidth().height(75.dp).padding(horizontal = 24.dp),
                 horizontalArrangement = Arrangement.End
             ) {
-                Box(Modifier.size(55.dp).clickable { })
+                Box(Modifier.size(55.dp).clickable {
+                    val intent = Intent(ctx, SettingsActivity::class.java)
+                    ctx.startActivity(intent)
+                })
                 Spacer(modifier = Modifier.width(10.dp))
                 Box(Modifier.size(55.dp).clickable { })
                 Spacer(modifier = Modifier.width(10.dp))
