@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.actividad2_ddam.ui.theme.Actividad2DDAMTheme
 
+// Actividad inicial que gestiona el acceso del usuario
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,7 +34,7 @@ class MainActivity : ComponentActivity() {
             Actividad2DDAMTheme {
                 LoginScreen(
                     onIngresar = {
-                        // Navegación hacia tu pantalla (MainMenuActivity)
+                        // Navegacion hacia el menu principal tras autenticarse
                         val intent = Intent(this, MainMenuActivity::class.java)
                         startActivity(intent)
                     }
@@ -43,18 +44,17 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+// Interfaz de usuario para la pantalla de inicio de sesion
 @Composable
-fun LoginScreen(
-    onIngresar: () -> Unit
-) {
+fun LoginScreen(onIngresar: () -> Unit) {
     val context = LocalContext.current
 
-    // Fondo degradado
+    // Configuracion del degradado de fondo
     val fondo = Brush.verticalGradient(
         colors = listOf(
             Color(0xFF33436F),
             Color(0xFF4B84A8),
-            Color(0xFF8BB8D0)
+            Color(0xFF8BB5CE)
         )
     )
 
@@ -71,7 +71,7 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            // LOGO
+            // Logo distintivo de la aplicacion
             Image(
                 painter = painterResource(id = R.drawable.logo_tareum),
                 contentDescription = "Logo TAREUM",
@@ -80,7 +80,7 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            // NOMBRE DE LA APP
+            // Titulo principal de la aplicacion
             Text(
                 text = "TAREUM",
                 fontSize = 24.sp,
@@ -90,18 +90,14 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(34.dp))
 
-            // BOTÓN: INGRESAR COMO USER
+            // Acceso estandar como usuario
             Button(
-                onClick = {
-                    onIngresar()
-                },
+                onClick = { onIngresar() },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
                 shape = RoundedCornerShape(28.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFEDE2FF)
-                )
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEDE2FF))
             ) {
                 Text(
                     text = "Ingresar como USER",
@@ -113,25 +109,17 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(26.dp))
 
-            // BOTÓN: INGRESAR CON GOOGLE
+            // Acceso alternativo mediante cuenta externa
             Button(
                 onClick = {
-                    Toast.makeText(
-                        context,
-                        "Inicio de sesión correcto con Google",
-                        Toast.LENGTH_SHORT
-                    ).show()
-
-                    // Conexión para avanzar a Home tras el Toast
+                    Toast.makeText(context, "Inicio con Google", Toast.LENGTH_SHORT).show()
                     onIngresar()
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
                 shape = RoundedCornerShape(28.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFEDE2FF)
-                )
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEDE2FF))
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -157,7 +145,7 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // TEXTO INFERIOR
+            // Aviso sobre integracion con calendario
             Text(
                 text = "*Permite conectar tu calendario con la app",
                 fontSize = 11.sp,

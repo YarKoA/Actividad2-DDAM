@@ -40,6 +40,18 @@
             android:theme="@style/Theme.Actividad2DDAM"
             android:windowSoftInputMode="adjustResize" />
 
+        <!-- Pantalla de Calendario -->
+        <activity
+            android:name=".CalendarActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Actividad2DDAM" />
+
+        <!-- Pantalla de Editar -->
+        <activity
+            android:name=".EditarActividadActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Actividad2DDAM" />
+
     </application>
 
 </manifest>
