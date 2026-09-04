@@ -26,10 +26,18 @@ class Tarea(
 
 // Repositorio global para gestionar los datos en memoria
 // Mantiene la lista de tareas sincronizada con la interfaz
+data class Usuario(
+    var nombre: String = "Usuario",
+    var correo: String = "usuario@ejemplo.com",
+    var contrasena: String = "Password123",
+    var telefono: String = "5551234567",
+    var edad: Int = 25
+)
+
 object Repo {
-    var contadorId = 3 // Contador para asignar nuevos identificadores
+    var contadorId = 3
+    var usuarioActual: Usuario? = Usuario()
     
-    // Lista reactiva que notifica cambios a la UI
     val tareas = mutableStateListOf(
         Tarea(1, "Salir a trotar", "Jogging por 30 minutos", "10:30 am", "Vie"),
         Tarea(2, "Junta a la 1", null, "1:00 pm", "Vie")

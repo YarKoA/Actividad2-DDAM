@@ -29,6 +29,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.actividad2_ddam.ui.theme.Actividad2DDAMTheme
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.ui.window.Dialog
+
 class MainMenuActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,6 +43,10 @@ class MainMenuActivity : ComponentActivity() {
 @Composable
 fun MainMenuScreen() {
     val ctx = LocalContext.current
+    var usuario by remember { mutableStateOf(Repo.usuarioActual) }
+    var mostrarPerfil by remember { mutableStateOf(false) }
+    var mostrarEditar by remember { mutableStateOf(false) }
+
     var diaSeleccionado by remember { mutableStateOf("Vie") }
     var pestanaActual by remember { mutableStateOf("HOME") }
 
@@ -54,14 +61,48 @@ fun MainMenuScreen() {
 
     val fondo = Brush.verticalGradient(listOf(Color(0xFF2C3E6B), Color(0xFF4B6B94), Color(0xFF8BB5CE)))
 
-    // Obtenemos la lista reactiva (Compose vigilará los cambios aquí)
     val tareasFiltradas = if (diaSeleccionado == "Vie") Repo.tareas else emptyList()
 
     Box(modifier = Modifier.fillMaxSize().background(fondo)) {
         Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(44.dp))
 
-            // Selector interactivo de dias
+            val primeraLetra = usuario?.nombre?.trim()?.firstOrNull()?.uppercase() ?: "U"
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Bienvenido, ${usuario?.nombre ?: "Usuario"}",
+                    color = Color.White,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Surface(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clickable { mostrarPerfil = true },
+                    shape = CircleShape,
+                    color = Color(0xFF385A79),
+                    border = BorderStroke(2.dp, Color.White),
+                    shadowElevation = 4.dp
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Text(
+                            text = primeraLetra,
+                            color = Color.White,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
+
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 listOf("Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom").forEach { dia ->
                     val esActivo = dia == diaSeleccionado
@@ -92,7 +133,6 @@ fun MainMenuScreen() {
                             t = tarea,
                             diaTexto = diaSeleccionado,
                             onEditarClick = {
-                                // SOLUCIÓN AL PROBLEMA 1: Navegación con ID
                                 val intent = Intent(ctx, EditarActividadActivity::class.java)
                                 intent.putExtra("TAREA_ID", tarea.id)
                                 ctx.startActivity(intent)
@@ -105,7 +145,6 @@ fun MainMenuScreen() {
             Spacer(modifier = Modifier.height(90.dp))
         }
 
-        // Boton +
         FloatingActionButton(
             onClick = { navegarSeguro("MainstreamActivity") },
             modifier = Modifier.align(Alignment.BottomStart).padding(start = 24.dp, bottom = 100.dp).size(56.dp),
@@ -115,7 +154,6 @@ fun MainMenuScreen() {
             Text(text = "+", color = Color.White, fontSize = 32.sp)
         }
 
-        // Barra inferior
         Box(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(), contentAlignment = Alignment.BottomCenter) {
             val imagenBarra = if (pestanaActual == "CALENDARIO") R.drawable.barracalendar else R.drawable.barrahome
             Image(
@@ -137,6 +175,139 @@ fun MainMenuScreen() {
                 Spacer(modifier = Modifier.width(10.dp))
                 Box(modifier = Modifier.size(65.dp).clickable { pestanaActual = "HOME" })
             }
+        }
+
+        if (mostrarPerfil) {
+            Dialog(onDismissRequest = { mostrarPerfil = false }) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF1EFFE)),
+                    elevation = CardDefaults.cardElevation(8.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    Brush.horizontalGradient(
+                                        listOf(Color(0xFF2C3E6B), Color(0xFF4B6B94))
+                                    ),
+                                    shape = RoundedCornerShape(16.dp)
+                                )
+                                .padding(vertical = 12.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "Perfil de Usuario",
+                                color = Color.White,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        val inicial = usuario?.nombre?.trim()?.firstOrNull()?.uppercase() ?: "U"
+                        Surface(
+                            modifier = Modifier.size(72.dp),
+                            shape = CircleShape,
+                            color = Color(0xFF2C3E6B),
+                            border = BorderStroke(3.dp, Color.White),
+                            shadowElevation = 6.dp
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text(
+                                    text = inicial,
+                                    color = Color.White,
+                                    fontSize = 36.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+
+                        Text(
+                            text = usuario?.nombre ?: "",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF1E293B)
+                        )
+
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color.White)
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(14.dp),
+                                verticalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                Text("Correo: ${usuario?.correo ?: ""}", fontSize = 14.sp, color = Color(0xFF1E293B), fontWeight = FontWeight.Medium)
+                                Text("Teléfono: ${usuario?.telefono ?: ""}", fontSize = 14.sp, color = Color(0xFF1E293B), fontWeight = FontWeight.Medium)
+                                Text("Edad: ${usuario?.edad ?: ""} años", fontSize = 14.sp, color = Color(0xFF1E293B), fontWeight = FontWeight.Medium)
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(6.dp))
+
+                        Button(
+                            onClick = {
+                                mostrarPerfil = false
+                                mostrarEditar = true
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(46.dp),
+                            shape = RoundedCornerShape(20.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2C3E6B))
+                        ) {
+                            Text("Editar cuenta", color = Color.White, fontWeight = FontWeight.Bold)
+                        }
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            TextButton(
+                                onClick = {
+                                    mostrarPerfil = false
+                                    val intent = Intent(ctx, MainActivity::class.java)
+                                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                    ctx.startActivity(intent)
+                                }
+                            ) {
+                                Text("Cerrar sesión", color = Color(0xFFC62828), fontWeight = FontWeight.SemiBold)
+                            }
+
+                            TextButton(onClick = { mostrarPerfil = false }) {
+                                Text("Volver al menú", color = Color(0xFF2C3E6B), fontWeight = FontWeight.SemiBold)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (mostrarEditar) {
+            FormularioCuentaDialog(
+                titulo = "Editar Cuenta",
+                usuarioInicial = usuario,
+                onDismiss = { mostrarEditar = false },
+                onGuardar = { usuarioEditado ->
+                    Repo.usuarioActual = usuarioEditado
+                    usuario = usuarioEditado
+                    Toast.makeText(ctx, "Cuenta actualizada", Toast.LENGTH_SHORT).show()
+                    mostrarEditar = false
+                }
+            )
         }
     }
 }

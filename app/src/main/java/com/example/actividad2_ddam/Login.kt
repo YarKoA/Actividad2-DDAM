@@ -23,7 +23,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.actividad2_ddam.ui.theme.Actividad2DDAMTheme
 
-// Actividad inicial que gestiona el acceso del usuario
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,7 +38,6 @@ class MainActivity : ComponentActivity() {
             Actividad2DDAMTheme {
                 LoginScreen(
                     onIngresar = {
-                        // Navegacion hacia el menu principal tras autenticarse
                         val intent = Intent(this, MainMenuActivity::class.java)
                         startActivity(intent)
                     }
@@ -44,12 +47,11 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-// Interfaz de usuario para la pantalla de inicio de sesion
 @Composable
 fun LoginScreen(onIngresar: () -> Unit) {
     val context = LocalContext.current
+    var mostrarCrearCuenta by remember { mutableStateOf(false) }
 
-    // Configuracion del degradado de fondo
     val fondo = Brush.verticalGradient(
         colors = listOf(
             Color(0xFF33436F),
@@ -71,7 +73,6 @@ fun LoginScreen(onIngresar: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            // Logo distintivo de la aplicacion
             Image(
                 painter = painterResource(id = R.drawable.logo_tareum),
                 contentDescription = "Logo TAREUM",
@@ -80,7 +81,6 @@ fun LoginScreen(onIngresar: () -> Unit) {
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            // Titulo principal de la aplicacion
             Text(
                 text = "TAREUM",
                 fontSize = 24.sp,
@@ -88,9 +88,8 @@ fun LoginScreen(onIngresar: () -> Unit) {
                 color = Color.White
             )
 
-            Spacer(modifier = Modifier.height(34.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-            // Acceso estandar como usuario
             Button(
                 onClick = { onIngresar() },
                 modifier = Modifier
@@ -107,9 +106,26 @@ fun LoginScreen(onIngresar: () -> Unit) {
                 )
             }
 
-            Spacer(modifier = Modifier.height(26.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // Acceso alternativo mediante cuenta externa
+            Button(
+                onClick = { mostrarCrearCuenta = true },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = RoundedCornerShape(28.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEDE2FF))
+            ) {
+                Text(
+                    text = "Crear Cuenta",
+                    color = Color(0xFF385A79),
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             Button(
                 onClick = {
                     Toast.makeText(context, "Funcionalidad no disponible", Toast.LENGTH_SHORT).show()
@@ -144,11 +160,23 @@ fun LoginScreen(onIngresar: () -> Unit) {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Aviso sobre integracion con calendario
             Text(
                 text = "*Permite conectar tu calendario con la app",
                 fontSize = 11.sp,
                 color = Color.White.copy(alpha = 0.90f)
+            )
+        }
+
+        if (mostrarCrearCuenta) {
+            FormularioCuentaDialog(
+                titulo = "Crear Cuenta",
+                onDismiss = { mostrarCrearCuenta = false },
+                onGuardar = { usuarioNuevo ->
+                    Repo.usuarioActual = usuarioNuevo
+                    Toast.makeText(context, "Cuenta creada exitosamente", Toast.LENGTH_SHORT).show()
+                    mostrarCrearCuenta = false
+                    onIngresar()
+                }
             )
         }
     }
