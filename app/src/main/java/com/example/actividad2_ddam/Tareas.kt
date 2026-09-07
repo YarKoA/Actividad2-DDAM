@@ -1,6 +1,9 @@
 package com.example.actividad2_ddam
 
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 
 // Interfaz para definir el comportamiento base de las tareas
 interface GestionTarea {
@@ -36,7 +39,10 @@ data class Usuario(
 
 object Repo {
     var contadorId = 3
-    var usuarioActual: Usuario? = Usuario()
+    var usuarioActual: Usuario? = null
+
+    // Estado global sencillo para compartir el modo oscuro entre pantallas
+    var modoOscuro by mutableStateOf(false)
     
     val tareas = mutableStateListOf(
         Tarea(1, "Salir a trotar", "Jogging por 30 minutos", "10:30 am", "Vie"),

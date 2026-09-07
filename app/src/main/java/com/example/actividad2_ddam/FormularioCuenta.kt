@@ -119,7 +119,7 @@ fun FormularioCuentaDialog(
                 .fillMaxWidth()
                 .padding(vertical = 16.dp),
             shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFF1EFFE)),
+            colors = CardDefaults.cardColors(containerColor = if (Repo.modoOscuro) Color(0xFF202020) else Color(0xFFF1EFFE)),
             elevation = CardDefaults.cardElevation(8.dp)
         ) {
             Column(
@@ -267,15 +267,15 @@ fun CampoTextoEspecial(
             visualTransformation = if (esPassword) PasswordVisualTransformation() else androidx.compose.ui.text.input.VisualTransformation.None,
             keyboardOptions = KeyboardOptions(keyboardType = tipoTeclado),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color(0xFF1E293B),
-                unfocusedTextColor = Color(0xFF1E293B),
+                focusedTextColor = if (Repo.modoOscuro) Color.White else Color(0xFF1E293B),
+                unfocusedTextColor = if (Repo.modoOscuro) Color.White else Color(0xFF1E293B),
                 focusedBorderColor = Color(0xFF2C3E6B),
                 unfocusedBorderColor = Color(0xFF7A9BBF),
                 focusedLabelColor = Color(0xFF2C3E6B),
                 unfocusedLabelColor = Color(0xFF385A79),
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White,
-                errorContainerColor = Color.White,
+                focusedContainerColor = if (Repo.modoOscuro) Color(0xFF343434) else Color(0xFFEDE2FF),
+                unfocusedContainerColor = if (Repo.modoOscuro) Color(0xFF343434) else Color(0xFFEDE2FF),
+                errorContainerColor = if (Repo.modoOscuro) Color(0xFF343434) else Color(0xFFEDE2FF),
                 errorBorderColor = Color(0xFFC62828),
                 errorLabelColor = Color(0xFFC62828)
             ),

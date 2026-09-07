@@ -41,7 +41,7 @@ class EditarActividadActivity : ComponentActivity() {
         val tareaAEditar = Repo.tareas.find { it.id == tareaId } ?: Repo.tareas.firstOrNull()
 
         setContent {
-            Actividad2DDAMTheme {
+            Actividad2DDAMTheme(darkTheme = Repo.modoOscuro, dynamicColor = false) {
                 EditarScreen(tareaAEditar) { finish() }
             }
         }
@@ -109,7 +109,7 @@ fun EditarScreen(tarea: Tarea?, alCerrar: () -> Unit) {
         Card(
             Modifier.fillMaxWidth().fillMaxHeight(0.95f), // Más alto para acomodar el error y las opciones
             shape = RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp, bottomStart = 24.dp, bottomEnd = 24.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFF1EFFE))
+            colors = CardDefaults.cardColors(containerColor = if (Repo.modoOscuro) Color(0xFF202020) else Color(0xFFF1EFFE))
         ) {
             Column(Modifier.padding(24.dp).fillMaxSize(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text("Editar Actividad", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color(0xFF5A75A7))
@@ -118,12 +118,12 @@ fun EditarScreen(tarea: Tarea?, alCerrar: () -> Unit) {
                 if (mensajeError.isNotEmpty()) {
                     Card(
                         modifier = Modifier.fillMaxWidth().border(1.dp, Color(0xFF8B2323), RoundedCornerShape(12.dp)),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFFE2E2E2))
+                        colors = CardDefaults.cardColors(containerColor = if (Repo.modoOscuro) Color(0xFF343434) else Color(0xFFE2E2E2))
                     ) {
                         Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Outlined.Info, "Error", tint = Color.Red, modifier = Modifier.size(24.dp))
                             Spacer(Modifier.width(12.dp))
-                            Text(mensajeError, color = Color.Black, fontSize = 14.sp)
+                            Text(mensajeError, color = if (Repo.modoOscuro) Color.White else Color.Black, fontSize = 14.sp)
                         }
                     }
                 }
@@ -214,7 +214,7 @@ fun EditarScreen(tarea: Tarea?, alCerrar: () -> Unit) {
                                         }
                                     ) {
                                         Box(Modifier.fillMaxSize(), Alignment.Center) {
-                                            Text(dia, fontSize = 10.sp, color = if(seleccionado) Color.White else Color.Black)
+                                            Text(dia, fontSize = 10.sp, color = if(seleccionado || Repo.modoOscuro) Color.White else Color.Black)
                                         }
                                     }
                                 }
@@ -281,7 +281,7 @@ fun MiniBox(txt: String, width: Int = 40) {
         colors = CardDefaults.cardColors(Color.Transparent) // Ajustado al diseño (fondo claro)
     ) {
         Box(Modifier.fillMaxSize(), Alignment.Center) {
-            Text(txt, fontSize = 11.sp, color = Color.Black)
+            Text(txt, fontSize = 11.sp, color = if (Repo.modoOscuro) Color.White else Color.Black)
         }
     }
 }
@@ -343,7 +343,7 @@ class EditarActividadActivity : ComponentActivity() {
         // Carga de la tarea seleccionada (ejemplo con la primera de la lista)
         val tareaAEditar = Repo.tareas.firstOrNull() 
         setContent {
-            Actividad2DDAMTheme {
+            Actividad2DDAMTheme(darkTheme = Repo.modoOscuro, dynamicColor = false) {
                 EditarScreen(tareaAEditar) { finish() }
             }
         }
@@ -364,7 +364,7 @@ fun EditarScreen(tarea: Tarea?, alCerrar: () -> Unit) {
         Card(
             Modifier.fillMaxWidth().fillMaxHeight(0.85f),
             shape = RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp, bottomStart = 24.dp, bottomEnd = 24.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFF1EFFE))
+            colors = CardDefaults.cardColors(containerColor = if (Repo.modoOscuro) Color(0xFF202020) else Color(0xFFF1EFFE))
         ) {
             Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text("Editar Actividad", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color(0xFF5A75A7))
@@ -469,10 +469,10 @@ fun MiniBox(txt: String, width: Int = 40) {
         Modifier.size(width.dp, 35.dp),
         shape = RoundedCornerShape(8.dp),
         border = BorderStroke(1.dp, Color.Gray),
-        colors = CardDefaults.cardColors(Color.White)
+        colors = CardDefaults.cardColors(if (Repo.modoOscuro) Color(0xFF343434) else Color(0xFFEDE2FF))
     ) {
         Box(Modifier.fillMaxSize(), Alignment.Center) {
-            Text(txt, fontSize = 11.sp, color = Color.Black)
+            Text(txt, fontSize = 11.sp, color = if (Repo.modoOscuro) Color.White else Color.Black)
         }
     }
 }

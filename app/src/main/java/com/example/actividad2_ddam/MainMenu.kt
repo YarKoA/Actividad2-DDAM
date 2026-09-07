@@ -6,6 +6,10 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,6 +19,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -31,12 +41,14 @@ import com.example.actividad2_ddam.ui.theme.Actividad2DDAMTheme
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.ui.window.Dialog
+import java.time.LocalDate
+import java.time.DayOfWeek
 
 class MainMenuActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent { Actividad2DDAMTheme { MainMenuScreen() } }
+        setContent { Actividad2DDAMTheme(darkTheme = Repo.modoOscuro, dynamicColor = false) { MainMenuScreen() } }
     }
 }
 
@@ -47,13 +59,25 @@ fun MainMenuScreen() {
     var mostrarPerfil by remember { mutableStateOf(false) }
     var mostrarEditar by remember { mutableStateOf(false) }
 
-    var diaSeleccionado by remember { mutableStateOf("Vie") }
-    var pestanaActual by remember { mutableStateOf("HOME") }
+    val diasMap = mapOf(
+        DayOfWeek.MONDAY to "Lun",
+        DayOfWeek.TUESDAY to "Mar",
+        DayOfWeek.WEDNESDAY to "Mie",
+        DayOfWeek.THURSDAY to "Jue",
+        DayOfWeek.FRIDAY to "Vie",
+        DayOfWeek.SATURDAY to "Sab",
+        DayOfWeek.SUNDAY to "Dom"
+    )
+    val diaActualStr = diasMap[LocalDate.now().dayOfWeek] ?: "Lun"
+    var diaSeleccionado by remember { mutableStateOf(diaActualStr) }
 
     fun navegarSeguro(nombreClase: String) {
         try {
             val intent = Intent(ctx, Class.forName("com.example.actividad2_ddam.$nombreClase"))
             ctx.startActivity(intent)
+            if (ctx is android.app.Activity) {
+                ctx.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+            }
         } catch (e: Exception) {
             Toast.makeText(ctx, "Error al abrir pantalla", Toast.LENGTH_SHORT).show()
         }
@@ -61,7 +85,7 @@ fun MainMenuScreen() {
 
     val fondo = Brush.verticalGradient(listOf(Color(0xFF2C3E6B), Color(0xFF4B6B94), Color(0xFF8BB5CE)))
 
-    val tareasFiltradas = if (diaSeleccionado == "Vie") Repo.tareas else emptyList()
+    val tareasFiltradas = Repo.tareas.filter { it.dia.equals(diaSeleccionado, ignoreCase = true) }
 
     Box(modifier = Modifier.fillMaxSize().background(fondo)) {
         Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
@@ -108,15 +132,15 @@ fun MainMenuScreen() {
                     val esActivo = dia == diaSeleccionado
                     Card(
                         modifier = Modifier
-                            .size(44.dp, 38.dp)
+                            .weight(1f).height(38.dp)
                             .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
                                 diaSeleccionado = dia
                             },
                         shape = RoundedCornerShape(10.dp),
-                        colors = CardDefaults.cardColors(containerColor = if (esActivo) Color(0xFF4A6DA7) else Color(0x33000000))
+                        colors = CardDefaults.cardColors(containerColor = if (esActivo) Color(0xFF556DB5) else if (Repo.modoOscuro) Color(0xFF343434) else Color(0xFF71808A))
                     ) {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text(text = dia, fontSize = 12.sp, color = if (esActivo) Color.White else Color(0xFF1E293B))
+                            Text(text = dia, fontSize = 12.sp, color = if (esActivo || Repo.modoOscuro) Color.White else Color.Black)
                         }
                     }
                 }
@@ -128,17 +152,34 @@ fun MainMenuScreen() {
                 }
             } else {
                 LazyColumn(modifier = Modifier.weight(1f).padding(top = 20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    items(tareasFiltradas) { tarea ->
-                        TareaCard(
-                            t = tarea,
-                            diaTexto = diaSeleccionado,
-                            onEditarClick = {
-                                val intent = Intent(ctx, EditarActividadActivity::class.java)
-                                intent.putExtra("TAREA_ID", tarea.id)
-                                ctx.startActivity(intent)
-                            },
-                            onAlarmaClick = { Toast.makeText(ctx, "Recordatorio activado", Toast.LENGTH_SHORT).show() }
+                    items(tareasFiltradas, key = { it.id }) { tarea ->
+                        // Animación al agregar eventos
+                        val isAdded by remember { mutableStateOf(true) }
+                        val offset by animateDpAsState(
+                            targetValue = if (isAdded) 0.dp else 100.dp,
+                            animationSpec = tween(durationMillis = 400),
+                            label = "addOffset"
                         )
+
+                        Box(modifier = Modifier.offset(x = offset)) {
+                            SwipeableEventCard(
+                                event = tarea,
+                                diaTexto = diaSeleccionado,
+                                onDelete = {
+                                    Repo.tareas.remove(tarea)
+                                    Toast.makeText(ctx, "Actividad eliminada", Toast.LENGTH_SHORT).show()
+                                },
+                                onEditarClick = {
+                                    val intent = Intent(ctx, EditarActividadActivity::class.java)
+                                    intent.putExtra("TAREA_ID", tarea.id)
+                                    ctx.startActivity(intent)
+                                    if (ctx is android.app.Activity) {
+                                        ctx.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+                                    }
+                                },
+                                onAlarmaClick = { Toast.makeText(ctx, "Recordatorio activado", Toast.LENGTH_SHORT).show() }
+                            )
+                        }
                     }
                 }
             }
@@ -154,27 +195,8 @@ fun MainMenuScreen() {
             Text(text = "+", color = Color.White, fontSize = 32.sp)
         }
 
-        Box(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(), contentAlignment = Alignment.BottomCenter) {
-            val imagenBarra = if (pestanaActual == "CALENDARIO") R.drawable.barracalendar else R.drawable.barrahome
-            Image(
-                painter = painterResource(id = imagenBarra),
-                contentDescription = null,
-                modifier = Modifier.fillMaxWidth(),
-                contentScale = ContentScale.FillWidth
-            )
-
-            Row(modifier = Modifier.fillMaxWidth().height(75.dp).padding(horizontal = 24.dp), horizontalArrangement = Arrangement.End) {
-                Box(modifier = Modifier.size(55.dp).clickable {
-                    navegarSeguro("SettingsActivity")
-                })
-                Spacer(modifier = Modifier.width(10.dp))
-                Box(modifier = Modifier.size(55.dp).clickable {
-                    pestanaActual = "CALENDARIO"
-                    navegarSeguro("CalendarActivity")
-                })
-                Spacer(modifier = Modifier.width(10.dp))
-                Box(modifier = Modifier.size(65.dp).clickable { pestanaActual = "HOME" })
-            }
+        Box(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth()) {
+            BottomNavBar(currentScreen = "HOME")
         }
 
         if (mostrarPerfil) {
@@ -184,7 +206,7 @@ fun MainMenuScreen() {
                         .fillMaxWidth()
                         .padding(16.dp),
                     shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF1EFFE)),
+                    colors = CardDefaults.cardColors(containerColor = if (Repo.modoOscuro) Color(0xFF252525) else Color(0xFFF1EFFE)),
                     elevation = CardDefaults.cardElevation(8.dp)
                 ) {
                     Column(
@@ -238,21 +260,21 @@ fun MainMenuScreen() {
                             text = usuario?.nombre ?: "",
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF1E293B)
+                            color = if (Repo.modoOscuro) Color.White else Color(0xFF1E293B)
                         )
 
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White)
+                            colors = CardDefaults.cardColors(containerColor = if (Repo.modoOscuro) Color(0xFF343434) else Color(0xFFEDE2FF))
                         ) {
                             Column(
                                 modifier = Modifier.padding(14.dp),
                                 verticalArrangement = Arrangement.spacedBy(6.dp)
                             ) {
-                                Text("Correo: ${usuario?.correo ?: ""}", fontSize = 14.sp, color = Color(0xFF1E293B), fontWeight = FontWeight.Medium)
-                                Text("Teléfono: ${usuario?.telefono ?: ""}", fontSize = 14.sp, color = Color(0xFF1E293B), fontWeight = FontWeight.Medium)
-                                Text("Edad: ${usuario?.edad ?: ""} años", fontSize = 14.sp, color = Color(0xFF1E293B), fontWeight = FontWeight.Medium)
+                                Text("Correo: ${usuario?.correo ?: ""}", fontSize = 14.sp, color = if (Repo.modoOscuro) Color.White else Color(0xFF1E293B), fontWeight = FontWeight.Medium)
+                                Text("Teléfono: ${usuario?.telefono ?: ""}", fontSize = 14.sp, color = if (Repo.modoOscuro) Color.White else Color(0xFF1E293B), fontWeight = FontWeight.Medium)
+                                Text("Edad: ${usuario?.edad ?: ""} años", fontSize = 14.sp, color = if (Repo.modoOscuro) Color.White else Color(0xFF1E293B), fontWeight = FontWeight.Medium)
                             }
                         }
 
@@ -282,6 +304,9 @@ fun MainMenuScreen() {
                                     val intent = Intent(ctx, MainActivity::class.java)
                                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                                     ctx.startActivity(intent)
+                                    if (ctx is android.app.Activity) {
+                                        ctx.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+                                    }
                                 }
                             ) {
                                 Text("Cerrar sesión", color = Color(0xFFC62828), fontWeight = FontWeight.SemiBold)
@@ -312,221 +337,280 @@ fun MainMenuScreen() {
     }
 }
 
+// Componente de Tarjeta Plegable (EventCard) solicitado en las instrucciones
 @Composable
-fun TareaCard(t: Tarea, diaTexto: String, onEditarClick: () -> Unit, onAlarmaClick: () -> Unit) {
-    Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(20.dp), colors = CardDefaults.cardColors(containerColor = Color(0xFFF1EFFE))) {
+fun EventCard(event: Tarea, diaTexto: String, onExpand: (Boolean) -> Unit, onEditarClick: () -> Unit, onAlarmaClick: () -> Unit) {
+    var isExpanded by remember { mutableStateOf(false) }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .animateContentSize(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = if (Repo.modoOscuro) Color(0xFF252525) else Color(0xFFF1EFFE))
+    ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(text = t.titulo, fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                Text(text = t.hora, fontSize = 12.sp, color = Color(0xFF3F5A8A))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = event.titulo,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp,
+                    color = if (Repo.modoOscuro) Color.White else Color.Black
+                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = event.hora,
+                        fontSize = 12.sp,
+                        color = if (Repo.modoOscuro) Color(0xFF8FC7FF) else Color(0xFF3F5A8A)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    IconButton(
+                        onClick = {
+                            isExpanded = !isExpanded
+                            onExpand(isExpanded)
+                        }
+                    ) {
+                        Icon(
+                            imageVector = if (isExpanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                            contentDescription = if (isExpanded) "Colapsar detalles de la actividad" else "Expandir detalles de la actividad",
+                            tint = if (Repo.modoOscuro) Color.White else Color.Black
+                        )
+                    }
+                }
             }
-            Text(text = t.desc ?: "Sin detalles", fontSize = 12.sp, color = Color.Gray)
-            Row(modifier = Modifier.fillMaxWidth().padding(top = 16.dp), horizontalArrangement = Arrangement.SpaceBetween, Alignment.CenterVertically) {
-                Text(text = "Duracion aprox: 60 min", fontSize = 12.sp, color = Color(0xFF3F5A8A))
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(text = "$diaTexto · Ago", fontSize = 10.sp)
-                    Image(painterResource(R.drawable.relojazul), null, Modifier.size(24.dp).clickable { onAlarmaClick() })
-                    Image(painterResource(R.drawable.editarazul), null, Modifier.size(24.dp).clickable { onEditarClick() })
+
+            if (isExpanded) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = event.desc ?: "Sin detalles adicionales",
+                    fontSize = 13.sp,
+                    color = if (Repo.modoOscuro) Color(0xFFD0D0D0) else Color.Gray
+                )
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Duracion aprox: 60 min",
+                    fontSize = 12.sp,
+                    color = if (Repo.modoOscuro) Color(0xFF8FC7FF) else Color(0xFF3F5A8A)
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "$diaTexto · Ago",
+                        fontSize = 10.sp,
+                        color = if (Repo.modoOscuro) Color.White else Color.Black
+                    )
+                    Image(
+                        painter = painterResource(R.drawable.relojazul),
+                        contentDescription = "Activar alarma",
+                        modifier = Modifier.size(24.dp).clickable { onAlarmaClick() }
+                    )
+                    Image(
+                        painter = painterResource(R.drawable.editarazul),
+                        contentDescription = "Editar actividad",
+                        modifier = Modifier.size(24.dp).clickable { onEditarClick() }
+                    )
                 }
             }
         }
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-package com.example.actividad2_ddam
-
-import android.content.Intent
-import android.os.Bundle
-import android.widget.Toast
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.example.actividad2_ddam.ui.theme.Actividad2DDAMTheme
-
-// Actividad principal para visualizar y gestionar la lista de tareas
-class MainMenuActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            Actividad2DDAMTheme {
-                MainMenuScreen()
+// Componente con gesto de deslizamiento para eliminar (Swipe to Dismiss)
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SwipeableEventCard(
+    event: Tarea,
+    diaTexto: String,
+    onDelete: () -> Unit,
+    onEditarClick: () -> Unit,
+    onAlarmaClick: () -> Unit
+) {
+    val dismissState = rememberSwipeToDismissBoxState(
+        confirmValueChange = {
+            if (it == SwipeToDismissBoxValue.EndToStart || it == SwipeToDismissBoxValue.StartToEnd) {
+                onDelete()
+                true
+            } else {
+                false
             }
         }
-    }
-}
-
-// Componente principal de la pantalla de tareas
-@Composable
-fun MainMenuScreen() {
-    val ctx = LocalContext.current
-
-    // Estados para controlar el dia filtrado y la navegacion inferior
-    var diaSeleccionado by remember { mutableStateOf("Vie") }
-    var pestanaActual by remember { mutableStateOf("HOME") }
-
-    // Gestion de navegacion segura entre actividades
-    fun navegarSeguro(nombreClase: String) {
-        try {
-            val intent = Intent(ctx, Class.forName("com.example.actividad2_ddam.$nombreClase"))
-            ctx.startActivity(intent)
-        } catch (e: Exception) {
-            Toast.makeText(ctx, "Error al abrir pantalla", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    val fondo = Brush.verticalGradient(
-        listOf(Color(0xFF2C3E6B), Color(0xFF4B6B94), Color(0xFF8BB5CE))
     )
 
-    // Logica de filtrado basico para demostracion
-    val tareasFiltradas = if (diaSeleccionado == "Vie") Repo.tareas else emptyList()
-
-    Box(modifier = Modifier.fillMaxSize().background(fondo)) {
-        Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
-            Spacer(modifier = Modifier.height(48.dp))
-
-            // Selector interactivo de dias de la semana
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                listOf("Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom").forEach { dia ->
-                    val esActivo = dia == diaSeleccionado
-                    Card(
-                        modifier = Modifier
-                            .size(44.dp, 38.dp)
-                            .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
-                                diaSeleccionado = dia
-                            },
-                        shape = RoundedCornerShape(10.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = if (esActivo) Color(0xFF4A6DA7) else Color(0x33000000)
-                        )
-                    ) {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text(text = dia, fontSize = 12.sp, color = if (esActivo) Color.White else Color(0xFF1E293B))
-                        }
-                    }
-                }
+    SwipeToDismissBox(
+        state = dismissState,
+        backgroundContent = {
+            val color = Color(0xFFC62828)
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color, RoundedCornerShape(20.dp))
+                    .padding(horizontal = 20.dp),
+                contentAlignment = Alignment.CenterEnd
+            ) {
+                Text("Eliminar", color = Color.White, fontWeight = FontWeight.Bold)
             }
-
-            // Visualizacion de la lista de actividades o mensaje vacio
-            if (tareasFiltradas.isEmpty()) {
-                Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    Text(text = "Sin actividades para hoy", color = Color.White)
-                }
-            } else {
-                LazyColumn(modifier = Modifier.weight(1f).padding(top = 20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    items(tareasFiltradas) { tarea ->
-                        TareaCard(
-                            t = tarea,
-                            diaTexto = diaSeleccionado,
-                            onEditarClick = { navegarSeguro("EditarActividadActivity") },
-                            onAlarmaClick = { Toast.makeText(ctx, "Recordatorio activado", Toast.LENGTH_SHORT).show() }
-                        )
-                    }
-                }
-            }
-            Spacer(modifier = Modifier.height(90.dp))
         }
+    ) {
+        EventCard(
+            event = event,
+            diaTexto = diaTexto,
+            onExpand = {},
+            onEditarClick = onEditarClick,
+            onAlarmaClick = onAlarmaClick
+        )
+    }
+}
 
-        // Boton para añadir nueva tarea
-        FloatingActionButton(
-            onClick = { navegarSeguro("MainstreamActivity") },
-            modifier = Modifier.align(Alignment.BottomStart).padding(start = 24.dp, bottom = 100.dp).size(56.dp),
-            containerColor = Color(0xFF3B5E8C),
-            shape = CircleShape
+private fun navegarConTransicionSuave(ctx: android.content.Context, targetClass: Class<*>) {
+    if (ctx.javaClass != targetClass) {
+        val intent = Intent(ctx, targetClass)
+        ctx.startActivity(intent)
+        if (ctx is android.app.Activity) {
+            ctx.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+        }
+    }
+}
+
+@Composable
+private fun BottomNavBar(currentScreen: String) {
+    val ctx = LocalContext.current
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(100.dp),
+        contentAlignment = Alignment.BottomCenter
+    ) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(80.dp),
+            color = if (Repo.modoOscuro) Color(0xFF202020) else Color(0xFFF1EFFE),
+            shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
+            shadowElevation = 12.dp
         ) {
-            Text(text = "+", color = Color.White, fontSize = 32.sp)
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.BottomCenter
+            ) {
+                Box(
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .width(130.dp)
+                        .height(4.dp)
+                        .background(
+                            color = if (Repo.modoOscuro) Color.LightGray else Color.Black,
+                            shape = CircleShape
+                        )
+                )
+            }
         }
 
-        // Barra de navegacion inferior con iconos dinmicos
-        Box(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(), contentAlignment = Alignment.BottomCenter) {
-            val imagenBarra = if (pestanaActual == "CALENDARIO") R.drawable.barracalendar else R.drawable.barrahome
-
-            Image(
-                painter = painterResource(id = imagenBarra),
-                contentDescription = null,
-                modifier = Modifier.fillMaxWidth(),
-                contentScale = ContentScale.FillWidth
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(100.dp)
+                .padding(horizontal = 24.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // 1. Home
+            MainMenuNavItemButton(
+                icon = Icons.Default.Home,
+                label = "HOME",
+                isActive = currentScreen == "HOME",
+                onClick = { navegarConTransicionSuave(ctx, MainMenuActivity::class.java) }
             )
 
-            Row(modifier = Modifier.fillMaxWidth().height(75.dp).padding(horizontal = 24.dp), horizontalArrangement = Arrangement.End) {
-                Box(modifier = Modifier.size(55.dp).clickable { /* Ajustes */ })
-                Spacer(modifier = Modifier.width(10.dp))
-                // Acceso a la vista de calendario
-                Box(modifier = Modifier.size(55.dp).clickable { 
-                    pestanaActual = "CALENDARIO"
-                    navegarSeguro("CalendarActivity")
-                })
-                Spacer(modifier = Modifier.width(10.dp))
-                // Regreso a la vista principal
-                Box(modifier = Modifier.size(65.dp).clickable { pestanaActual = "HOME" })
-            }
+            // 2. Calendar
+            MainMenuNavItemButton(
+                icon = Icons.Default.DateRange,
+                label = "CALEND",
+                isActive = currentScreen == "CALENDARIO",
+                onClick = { navegarConTransicionSuave(ctx, CalendarActivity::class.java) }
+            )
+
+            // 3. Settings / Config
+            MainMenuNavItemButton(
+                icon = Icons.Default.Settings,
+                label = "CONFIG",
+                isActive = currentScreen == "SETTINGS",
+                onClick = { navegarConTransicionSuave(ctx, SettingsActivity::class.java) }
+            )
         }
     }
 }
 
-// Tarjeta individual para mostrar detalles de una tarea
 @Composable
-fun TareaCard(t: Tarea, diaTexto: String, onEditarClick: () -> Unit, onAlarmaClick: () -> Unit) {
-    Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(20.dp), colors = CardDefaults.cardColors(containerColor = Color(0xFFF1EFFE))) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(text = t.titulo, fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                Text(text = t.hora, fontSize = 12.sp, color = Color(0xFF3F5A8A))
-            }
-            Text(text = t.desc ?: "Sin detalles", fontSize = 12.sp, color = Color.Gray)
-            Row(modifier = Modifier.fillMaxWidth().padding(top = 16.dp), horizontalArrangement = Arrangement.SpaceBetween, Alignment.CenterVertically) {
-                Text(text = "Duracion aprox: 60 min", fontSize = 12.sp, color = Color(0xFF3F5A8A))
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(text = "$diaTexto · Ago", fontSize = 10.sp)
-                    // Iconos para acciones rapidas
-                    Image(painterResource(R.drawable.relojazul), null, Modifier.size(24.dp).clickable { onAlarmaClick() })
-                    Image(painterResource(R.drawable.editarazul), null, Modifier.size(24.dp).clickable { onEditarClick() })
+private fun MainMenuNavItemButton(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    isActive: Boolean,
+    onClick: () -> Unit
+) {
+    val size by animateDpAsState(
+        targetValue = if (isActive) 68.dp else 52.dp,
+        animationSpec = tween(durationMillis = 300),
+        label = "sizeAnimation"
+    )
+    val backgroundColor by animateColorAsState(
+        targetValue = if (isActive) Color(0xFF8BB5CE) else Color(0xFF3B5E8C),
+        animationSpec = tween(durationMillis = 300),
+        label = "colorAnimation"
+    )
+    val iconTint by animateColorAsState(
+        targetValue = if (isActive) Color(0xFF1E3A5F) else Color.White,
+        animationSpec = tween(durationMillis = 300),
+        label = "tintAnimation"
+    )
+    val offsetY by animateDpAsState(
+        targetValue = if (isActive) (-12).dp else 0.dp,
+        animationSpec = tween(durationMillis = 300),
+        label = "offsetAnimation"
+    )
+
+    Surface(
+        modifier = Modifier
+            .offset(y = offsetY)
+            .size(size)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { onClick() },
+        shape = CircleShape,
+        color = backgroundColor,
+        shadowElevation = if (isActive) 8.dp else 3.dp,
+        border = if (isActive) BorderStroke(2.dp, Color.White) else null
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = label,
+                    tint = iconTint,
+                    modifier = Modifier.size(if (isActive) 22.dp else 24.dp)
+                )
+                if (isActive) {
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = label,
+                        fontSize = 8.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF1E3A5F)
+                    )
                 }
             }
         }
     }
 }
-
- */
