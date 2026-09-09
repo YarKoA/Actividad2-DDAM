@@ -40,13 +40,11 @@ fun LoginScreen(onIngresar: () -> Unit) {
         )
     )
 
-    BoxWithConstraints(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(fondo)
     ) {
-        val maxWidth = maxWidth
-
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -114,16 +112,17 @@ fun LoginScreen(onIngresar: () -> Unit) {
 
                 Button(
                     onClick = {
+                        val usuarioActual = Repo.usuarioActual
                         when {
-                            Repo.usuarioActual == null -> {
+                            usuarioActual == null -> {
                                 Toast.makeText(context, "Primero debes crear tu cuenta", Toast.LENGTH_SHORT).show()
                             }
                             correoLogin.trim().isEmpty() || contrasenaLogin.isEmpty() -> {
                                 Toast.makeText(context, "Ingresa tu correo y contraseña", Toast.LENGTH_SHORT).show()
                             }
-                            correoLogin.trim().equals(Repo.usuarioActual!!.correo.trim(), ignoreCase = true) &&
-                                    contrasenaLogin == Repo.usuarioActual!!.contrasena -> {
-                                Toast.makeText(context, "¡Bienvenido de nuevo, ${Repo.usuarioActual!!.nombre}!", Toast.LENGTH_SHORT).show()
+                            correoLogin.trim().equals(usuarioActual.correo.trim(), ignoreCase = true) &&
+                                    contrasenaLogin == usuarioActual.contrasena -> {
+                                Toast.makeText(context, "¡Bienvenido de nuevo, ${usuarioActual.nombre}!", Toast.LENGTH_SHORT).show()
                                 onIngresar()
                             }
                             else -> {
