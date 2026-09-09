@@ -18,6 +18,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.example.actividad2_ddam.model.Repo
+import com.example.actividad2_ddam.model.Usuario
 
 @Composable
 fun FormularioCuentaDialog(
