@@ -7,10 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import com.example.actividad2_ddam.model.Repo
 import com.example.actividad2_ddam.navigation.AppNavigation
 import com.example.actividad2_ddam.ui.theme.Actividad2DDAMTheme
-import dagger.hilt.android.AndroidEntryPoint
-
-// Actividad principal con Jetpack Compose Navigation y Hilt
-@AndroidEntryPoint
+// Actividad principal con Jetpack Compose Navigation
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -24,7 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.actividad2_ddam.FormularioCuentaDialog
 import com.example.actividad2_ddam.model.Repo
@@ -38,7 +38,7 @@ import java.time.LocalDate
 @Composable
 fun EventListScreen(
     navController: NavController,
-    viewModel: EventViewModel = hiltViewModel(),
+    viewModel: EventViewModel = viewModel(),
     onAddEventClick: () -> Unit
 ) {
     val ctx = LocalContext.current

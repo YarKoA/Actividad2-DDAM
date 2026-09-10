@@ -4,11 +4,8 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import com.example.actividad2_ddam.model.Tarea
 import com.example.actividad2_ddam.model.Repo
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 
-@HiltViewModel
-class EventViewModel @Inject constructor() : ViewModel() {
+class EventViewModel : ViewModel() {
 
     // Lista observable de tareas sincronizada con el repositorio
     val events: SnapshotStateList<Tarea> = Repo.tareas
