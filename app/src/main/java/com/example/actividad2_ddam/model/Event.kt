@@ -18,9 +18,6 @@ data class Tarea(
     override fun mostrar() = "$titulo - $dia a las $hora"
 }
 
-// Alias Event para compatibilidad
-typealias Event = Tarea
-
 // Modelo de datos para el usuario
 data class Usuario(
     var nombre: String,
@@ -32,7 +29,7 @@ data class Usuario(
 
 // Repositorio global de datos
 object Repo {
-    var usuarioActual: Usuario? = Usuario("Juan Pérez", "juan@example.com", "12345678", "5512345678", 25)
+    var usuarioActual: Usuario? = null
     var modoOscuro = false
     var contadorId = 3
 

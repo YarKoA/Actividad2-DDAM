@@ -122,7 +122,7 @@ fun LoginScreen(onIngresar: () -> Unit) {
                             }
                             correoLogin.trim().equals(usuarioActual.correo.trim(), ignoreCase = true) &&
                                     contrasenaLogin == usuarioActual.contrasena -> {
-                                Toast.makeText(context, "¡Bienvenido de nuevo, ${usuarioActual.nombre}!", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "¡Bienvenido, ${usuarioActual.nombre}!", Toast.LENGTH_SHORT).show()
                                 onIngresar()
                             }
                             else -> {
@@ -217,7 +217,7 @@ fun LoginScreen(onIngresar: () -> Unit) {
                     Toast.makeText(context, "Cuenta creada con éxito. Ahora puedes iniciar sesión.", Toast.LENGTH_LONG).show()
                     mostrarCrearCuenta = false
                     correoLogin = usuarioNuevo.correo
-                    contrasenaLogin = usuarioNuevo.contrasena
+                    contrasenaLogin = ""
                 }
             )
         }

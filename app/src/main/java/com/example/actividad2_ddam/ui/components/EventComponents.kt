@@ -30,20 +30,27 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.actividad2_ddam.R
-import com.example.actividad2_ddam.model.Event
+import com.example.actividad2_ddam.model.Tarea
 import com.example.actividad2_ddam.model.Repo
 import com.example.actividad2_ddam.navigation.Routes
+import java.time.LocalDate
+import java.time.format.TextStyle
+import java.util.Locale
 
 // Componente Tarjeta Plegable (EventCard) con animación de contenido
 @Composable
 fun EventCard(
-    event: Event,
+    event: Tarea,
     diaTexto: String = event.dia,
     onExpand: (Boolean) -> Unit = {},
     onEditarClick: () -> Unit = {},
     onAlarmaClick: () -> Unit = {}
 ) {
     var isExpanded by remember { mutableStateOf(false) }
+
+    // Mes dinámico basado en la fecha actual
+    val mesActual = LocalDate.now().month.getDisplayName(TextStyle.SHORT, Locale("es", "ES"))
+        .replaceFirstChar { it.uppercase() }
 
     Card(
         modifier = Modifier
@@ -114,7 +121,7 @@ fun EventCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "$diaTexto · Ago",
+                        text = "$diaTexto · $mesActual",
                         fontSize = 10.sp,
                         color = if (Repo.modoOscuro) Color.White else Color.Black
                     )
@@ -142,7 +149,7 @@ fun EventCard(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SwipeableEventCard(
-    event: Event,
+    event: Tarea,
     diaTexto: String = event.dia,
     onDelete: () -> Unit,
     onEditarClick: () -> Unit = {},

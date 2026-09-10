@@ -13,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Actividad2DDAM">
 
-        <!-- Pantalla Principal (Login) -->
+        <!-- Pantalla Principal (Single Activity con Compose Navigation) -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -26,38 +26,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <!-- Segunda Pantalla (Menú Principal) -->
-        <activity
-            android:name=".MainMenuActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Actividad2DDAM"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- Tercera Pantalla (Añadir actividad) -->
-        <activity
-            android:name=".MainstreamActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Actividad2DDAM"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- Pantalla de Calendario -->
-        <activity
-            android:name=".CalendarActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Actividad2DDAM" />
-
-        <!-- Pantalla de Editar -->
-        <activity
-            android:name=".EditarActividadActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Actividad2DDAM" />
-
-        <!-- Pantalla de Settings-->
-        <activity
-            android:name=".SettingsActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Actividad2DDAM"/>
 
     </application>
 

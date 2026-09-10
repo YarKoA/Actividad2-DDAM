@@ -1,8 +1,6 @@
 package com.example.actividad2_ddam.ui.screens
 
 import android.widget.Toast
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -169,25 +167,20 @@ fun EventListScreen(
                             horizontalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
                             items(tareasFiltradas, key = { it.id }) { tarea ->
-                                val isAdded by remember { mutableStateOf(true) }
-                                val offset by animateDpAsState(
-                                    targetValue = if (isAdded) 0.dp else 100.dp,
-                                    animationSpec = tween(durationMillis = 400),
-                                    label = "addOffset"
+                                SwipeableEventCard(
+                                    event = tarea,
+                                    diaTexto = diaSeleccionado,
+                                    onDelete = {
+                                        viewModel.removeEvent(tarea)
+                                        Toast.makeText(ctx, "Actividad eliminada", Toast.LENGTH_SHORT).show()
+                                    },
+                                    onEditarClick = {
+                                        navController.navigate(Routes.eventEdit(tarea.id))
+                                    },
+                                    onAlarmaClick = {
+                                        Toast.makeText(ctx, "Recordatorio activado", Toast.LENGTH_SHORT).show()
+                                    }
                                 )
-
-                                Box(modifier = Modifier.offset(x = offset)) {
-                                    SwipeableEventCard(
-                                        event = tarea,
-                                        diaTexto = diaSeleccionado,
-                                        onDelete = {
-                                            viewModel.removeEvent(tarea)
-                                            Toast.makeText(ctx, "Actividad eliminada", Toast.LENGTH_SHORT).show()
-                                        },
-                                        onEditarClick = { onAddEventClick() },
-                                        onAlarmaClick = { Toast.makeText(ctx, "Recordatorio activado", Toast.LENGTH_SHORT).show() }
-                                    )
-                                }
                             }
                         }
                     } else {
@@ -198,25 +191,20 @@ fun EventListScreen(
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
                             items(tareasFiltradas, key = { it.id }) { tarea ->
-                                val isAdded by remember { mutableStateOf(true) }
-                                val offset by animateDpAsState(
-                                    targetValue = if (isAdded) 0.dp else 100.dp,
-                                    animationSpec = tween(durationMillis = 400),
-                                    label = "addOffset"
+                                SwipeableEventCard(
+                                    event = tarea,
+                                    diaTexto = diaSeleccionado,
+                                    onDelete = {
+                                        viewModel.removeEvent(tarea)
+                                        Toast.makeText(ctx, "Actividad eliminada", Toast.LENGTH_SHORT).show()
+                                    },
+                                    onEditarClick = {
+                                        navController.navigate(Routes.eventEdit(tarea.id))
+                                    },
+                                    onAlarmaClick = {
+                                        Toast.makeText(ctx, "Recordatorio activado", Toast.LENGTH_SHORT).show()
+                                    }
                                 )
-
-                                Box(modifier = Modifier.offset(x = offset)) {
-                                    SwipeableEventCard(
-                                        event = tarea,
-                                        diaTexto = diaSeleccionado,
-                                        onDelete = {
-                                            viewModel.removeEvent(tarea)
-                                            Toast.makeText(ctx, "Actividad eliminada", Toast.LENGTH_SHORT).show()
-                                        },
-                                        onEditarClick = { onAddEventClick() },
-                                        onAlarmaClick = { Toast.makeText(ctx, "Recordatorio activado", Toast.LENGTH_SHORT).show() }
-                                    )
-                                }
                             }
                         }
                     }

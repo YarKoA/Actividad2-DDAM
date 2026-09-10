@@ -21,7 +21,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.example.actividad2_ddam.model.Tarea
 import com.example.actividad2_ddam.model.Repo
 import com.example.actividad2_ddam.viewmodel.EventViewModel
@@ -33,24 +32,33 @@ import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EventFormScreen(
-    navController: NavController,
+fun EventEditScreen(
+    eventId: Int,
     viewModel: EventViewModel = hiltViewModel(),
     onCerrar: () -> Unit
 ) {
-    var tit by remember { mutableStateOf("") }
-    var des by remember { mutableStateOf("") }
+    val tarea = remember { viewModel.getEventById(eventId) }
+
+    if (tarea == null) {
+        // Si no se encuentra la tarea, cerrar la pantalla
+        LaunchedEffect(Unit) { onCerrar() }
+        return
+    }
+
+    var tit by remember { mutableStateOf(tarea.titulo) }
+    var des by remember { mutableStateOf(tarea.desc ?: "") }
 
     var fechaSeleccionada by remember { mutableStateOf<LocalDate?>(LocalDate.now()) }
-    var horaSeleccionada by remember { mutableStateOf("09:30 am") }
-    var repetirSeleccionados by remember { mutableStateOf(setOf<String>()) }
+    var horaSeleccionada by remember { mutableStateOf(tarea.hora) }
+    var repetirSeleccionados by remember {
+        mutableStateOf(
+            tarea.repetir.split(", ").filter { it != "No" }.toSet()
+        )
+    }
 
     var mostrarDatePicker by remember { mutableStateOf(false) }
     var mostrarTimePicker by remember { mutableStateOf(false) }
     var mensajeError by remember { mutableStateOf("") }
-
-    // Control de validación con LaunchedEffect
-    val titleError = remember(tit, mensajeError) { tit.isEmpty() && mensajeError.isNotEmpty() }
 
     val datePickerState = rememberDatePickerState()
     val timePickerState = rememberTimePickerState()
@@ -81,7 +89,12 @@ fun EventFormScreen(
             onDismissRequest = { mostrarTimePicker = false },
             confirmButton = {
                 TextButton(onClick = {
-                    val horaFormateada = String.format(java.util.Locale.getDefault(), "%02d:%02d", timePickerState.hour, timePickerState.minute)
+                    val horaFormateada = String.format(
+                        java.util.Locale.getDefault(),
+                        "%02d:%02d",
+                        timePickerState.hour,
+                        timePickerState.minute
+                    )
                     horaSeleccionada = horaFormateada
                     mostrarTimePicker = false
                 }) { Text("Aceptar") }
@@ -126,12 +139,13 @@ fun EventFormScreen(
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     Text(
-                        "Añadir actividad",
+                        "Editar Actividad",
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
                         color = if (Repo.modoOscuro) Color.White else Color(0xFF4A6DA7)
                     )
 
+                    // Banner de error
                     if (mensajeError.isNotEmpty()) {
                         Card(
                             modifier = Modifier
@@ -162,8 +176,9 @@ fun EventFormScreen(
                         }
                     }
 
+                    // Título
                     Text(
-                        "Ingresa un título *",
+                        "Título de la actividad *",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = if (Repo.modoOscuro) Color.White else Color.Black
@@ -174,7 +189,6 @@ fun EventFormScreen(
                             tit = it
                             if (mensajeError.isNotEmpty()) mensajeError = ""
                         },
-                        isError = titleError,
                         placeholder = { Text("Ej: Ir al gimnasio") },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
@@ -182,16 +196,13 @@ fun EventFormScreen(
                             focusedContainerColor = if (Repo.modoOscuro) Color(0xFF343434) else Color(0xFFE8E6FF),
                             unfocusedContainerColor = if (Repo.modoOscuro) Color(0xFF343434) else Color(0xFFE8E6FF),
                             focusedTextColor = if (Repo.modoOscuro) Color.White else Color.Black,
-                            unfocusedTextColor = if (Repo.modoOscuro) Color.White else Color.Black,
-                            errorBorderColor = Color.Red
+                            unfocusedTextColor = if (Repo.modoOscuro) Color.White else Color.Black
                         )
                     )
-                    if (titleError) {
-                        Text("¡Título requerido!", color = Color.Red, fontSize = 12.sp)
-                    }
 
+                    // Descripción
                     Text(
-                        "Ingresa una descripción",
+                        "Descripción de la actividad",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = if (Repo.modoOscuro) Color.White else Color.Black
@@ -212,13 +223,14 @@ fun EventFormScreen(
                         )
                     )
 
+                    // Hora
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            "Define una hora *:",
+                            "Hora de la actividad *:",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = if (Repo.modoOscuro) Color.White else Color.Black
@@ -228,17 +240,21 @@ fun EventFormScreen(
                             shape = RoundedCornerShape(12.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5A85B0))
                         ) {
-                            Text(text = if (horaSeleccionada.isEmpty()) "Seleccionar" else horaSeleccionada, color = Color.White)
+                            Text(
+                                text = if (horaSeleccionada.isEmpty()) "Seleccionar" else horaSeleccionada,
+                                color = Color.White
+                            )
                         }
                     }
 
+                    // Fecha
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            "Define una fecha *:",
+                            "Fecha de la actividad *:",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = if (Repo.modoOscuro) Color.White else Color.Black
@@ -248,11 +264,14 @@ fun EventFormScreen(
                             shape = RoundedCornerShape(12.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5A85B0))
                         ) {
-                            val textoFecha = fechaSeleccionada?.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) ?: "Seleccionar"
+                            val textoFecha = fechaSeleccionada?.format(
+                                DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                            ) ?: "Seleccionar"
                             Text(text = textoFecha, color = Color.White)
                         }
                     }
 
+                    // Repetir
                     Text(
                         "Repetir",
                         fontSize = 14.sp,
@@ -288,6 +307,7 @@ fun EventFormScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
+                    // Botón Guardar Cambios
                     Button(
                         onClick = {
                             val hoy = LocalDate.now()
@@ -297,7 +317,8 @@ fun EventFormScreen(
                                 fechaSeleccionada == null -> mensajeError = "Por favor selecciona una fecha."
                                 fechaSeleccionada?.isBefore(hoy) == true -> mensajeError = "La fecha no puede ser en el pasado."
                                 else -> {
-                                    val repeticionFinal = if (repetirSeleccionados.isEmpty()) "No" else repetirSeleccionados.joinToString(", ")
+                                    val repeticionFinal = if (repetirSeleccionados.isEmpty()) "No"
+                                        else repetirSeleccionados.joinToString(", ")
                                     try {
                                         val diasEspanolMap = mapOf(
                                             DayOfWeek.MONDAY to "Lun",
@@ -310,17 +331,17 @@ fun EventFormScreen(
                                         )
                                         val diaDeLaSemana = fechaSeleccionada?.let {
                                             diasEspanolMap[it.dayOfWeek]
-                                        } ?: "Lun"
+                                        } ?: tarea.dia
 
-                                        val nueva = Tarea(
-                                            id = Repo.contadorId++,
+                                        val tareaActualizada = Tarea(
+                                            id = tarea.id,
                                             titulo = tit,
                                             desc = des.ifBlank { null },
                                             hora = horaSeleccionada,
                                             dia = diaDeLaSemana,
                                             repetir = repeticionFinal
                                         )
-                                        viewModel.addEvent(nueva)
+                                        viewModel.updateEvent(tareaActualizada)
                                         onCerrar()
                                     } catch (_: Exception) {
                                         mensajeError = "Ocurrió un error al guardar."
@@ -334,11 +355,12 @@ fun EventFormScreen(
                         shape = RoundedCornerShape(26.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B5E8C))
                     ) {
-                        Text("Crear Actividad", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Text("Guardar Cambios", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     }
                 }
             }
 
+            // Botón volver
             IconButton(
                 onClick = { onCerrar() },
                 modifier = Modifier
@@ -351,3 +373,4 @@ fun EventFormScreen(
         }
     }
 }
+

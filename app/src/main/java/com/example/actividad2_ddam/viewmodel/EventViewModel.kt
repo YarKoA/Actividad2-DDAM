@@ -2,7 +2,7 @@ package com.example.actividad2_ddam.viewmodel
 
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
-import com.example.actividad2_ddam.model.Event
+import com.example.actividad2_ddam.model.Tarea
 import com.example.actividad2_ddam.model.Repo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -10,24 +10,29 @@ import javax.inject.Inject
 @HiltViewModel
 class EventViewModel @Inject constructor() : ViewModel() {
 
-    // Lista observable de eventos sincronizada con el repositorio
-    val events: SnapshotStateList<Event> = Repo.tareas
+    // Lista observable de tareas sincronizada con el repositorio
+    val events: SnapshotStateList<Tarea> = Repo.tareas
 
-    // Función para añadir un nuevo evento
-    fun addEvent(event: Event) {
+    // Función para añadir una nueva tarea
+    fun addEvent(event: Tarea) {
         Repo.tareas.add(event)
     }
 
-    // Función para eliminar un evento
-    fun removeEvent(event: Event) {
+    // Función para eliminar una tarea
+    fun removeEvent(event: Tarea) {
         Repo.tareas.remove(event)
     }
 
-    // Función para actualizar un evento existente
-    fun updateEvent(updatedEvent: Event) {
+    // Función para actualizar una tarea existente
+    fun updateEvent(updatedEvent: Tarea) {
         val index = Repo.tareas.indexOfFirst { it.id == updatedEvent.id }
         if (index != -1) {
             Repo.tareas[index] = updatedEvent
         }
+    }
+
+    // Función para obtener una tarea por su ID
+    fun getEventById(id: Int): Tarea? {
+        return Repo.tareas.find { it.id == id }
     }
 }
