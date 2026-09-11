@@ -1,5 +1,90 @@
 package com.example.actividad2_ddam.viewmodel
 
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.actividad2_ddam.data.TareaRepository
+import com.example.actividad2_ddam.model.Tarea
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import java.time.DayOfWeek
+import java.time.LocalDate
+import javax.inject.Inject
+
+@HiltViewModel
+class EventViewModel @Inject constructor(
+    private val repository: TareaRepository
+) : ViewModel() {
+
+    // 1. Calculamos el día actual
+    private val diasMap = mapOf(
+        DayOfWeek.MONDAY to "Lun", DayOfWeek.TUESDAY to "Mar", DayOfWeek.WEDNESDAY to "Mie",
+        DayOfWeek.THURSDAY to "Jue", DayOfWeek.FRIDAY to "Vie", DayOfWeek.SATURDAY to "Sab", DayOfWeek.SUNDAY to "Dom"
+    )
+    private val diaActual = diasMap[LocalDate.now().dayOfWeek] ?: "Lun"
+
+    // 2. Estado reactivo del día seleccionado
+    private val _diaSeleccionado = MutableStateFlow(diaActual)
+    val diaSeleccionado: StateFlow<String> = _diaSeleccionado.asStateFlow()
+
+    // 3. Mantenemos una lista global en caché para búsquedas rápidas (como getEventById)
+    private val _todasLasTareas = repository.todasLasTareas
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    // 4. Magia reactiva: Combina la BD y el día seleccionado para filtrar automáticamente
+    val tareasFiltradas: StateFlow<List<Tarea>> = combine(
+        repository.todasLasTareas,
+        _diaSeleccionado
+    ) { todas, dia ->
+        todas.filter { it.dia.equals(dia, ignoreCase = true) }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    // 5. Funciones actualizadas usando Corrutinas
+    fun actualizarDiaSeleccionado(nuevoDia: String) {
+        _diaSeleccionado.value = nuevoDia
+    }
+
+    fun addEvent(event: Tarea) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.insertarTarea(event)
+        }
+    }
+
+    fun removeEvent(event: Tarea) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.eliminarTarea(event)
+        }
+    }
+
+    fun updateEvent(event: Tarea) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.actualizarTarea(event)
+        }
+    }
+
+    fun getEventById(id: Int): Tarea? {
+        return _todasLasTareas.value.find { it.id == id }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+package com.example.actividad2_ddam.viewmodel
+
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import com.example.actividad2_ddam.model.Tarea
@@ -33,3 +118,6 @@ class EventViewModel : ViewModel() {
         return Repo.tareas.find { it.id == id }
     }
 }
+
+
+ */

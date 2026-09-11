@@ -4,10 +4,17 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.core.view.WindowCompat.enableEdgeToEdge
 import com.example.actividad2_ddam.model.Repo
 import com.example.actividad2_ddam.navigation.AppNavigation
 import com.example.actividad2_ddam.ui.theme.Actividad2DDAMTheme
+import dagger.hilt.android.AndroidEntryPoint
+
 // Actividad principal con Jetpack Compose Navigation
+
+
+
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -6,19 +6,18 @@ import kotlinx.coroutines.flow.Flow
 // DAO (Data Access Object) para la entidad Nota
 @Dao
 interface NotaDao {
-
-    @Query("SELECT * FROM notas ORDER BY id DESC")
+    @Query("SELECT * FROM notas")
     fun getTodasLasNotas(): Flow<List<Nota>>
 
-    @Query("SELECT * FROM notas WHERE id = :id LIMIT 1")
-    suspend fun getNotaPorId(id: Int): Nota?
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertarNota(nota: Nota)
+    suspend fun insertarNota(nota: Nota): Long // <-- Agrega : Long
 
     @Update
-    suspend fun actualizarNota(nota: Nota)
+    suspend fun actualizarNota(nota: Nota): Int // <-- Agrega : Int
 
     @Delete
-    suspend fun eliminarNota(nota: Nota)
+    suspend fun eliminarNota(nota: Nota): Int // <-- Agrega : Int
+
+    @Query("SELECT * FROM notas WHERE id = :id")
+    fun getNotaPorId(id: Int): Nota?
 }

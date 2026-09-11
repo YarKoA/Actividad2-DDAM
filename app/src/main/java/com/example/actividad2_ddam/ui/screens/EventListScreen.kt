@@ -24,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.actividad2_ddam.FormularioCuentaDialog
@@ -38,7 +39,7 @@ import java.time.LocalDate
 @Composable
 fun EventListScreen(
     navController: NavController,
-    viewModel: EventViewModel = viewModel(),
+    viewModel: EventViewModel = hiltViewModel(),
     onAddEventClick: () -> Unit
 ) {
     val ctx = LocalContext.current
@@ -56,11 +57,12 @@ fun EventListScreen(
         DayOfWeek.SUNDAY to "Dom"
     )
     val diaActualStr = diasMap[LocalDate.now().dayOfWeek] ?: "Lun"
-    var diaSeleccionado by remember { mutableStateOf(diaActualStr) }
 
     val fondo = Brush.verticalGradient(listOf(Color(0xFF2C3E6B), Color(0xFF4B6B94), Color(0xFF8BB5CE)))
 
-    val tareasFiltradas = viewModel.events.filter { it.dia.equals(diaSeleccionado, ignoreCase = true) }
+    // El ViewModel ahora guarda el estado del día y expone la lista ya procesada
+    val diaSeleccionado by viewModel.diaSeleccionado.collectAsState()
+    val tareasFiltradas by viewModel.tareasFiltradas.collectAsState()
 
     BoxWithConstraints(modifier = Modifier.fillMaxSize().background(fondo)) {
         val isWideScreen = maxWidth > 600.dp
@@ -127,7 +129,7 @@ fun EventListScreen(
                                     interactionSource = remember { MutableInteractionSource() },
                                     indication = null
                                 ) {
-                                    diaSeleccionado = dia
+                                    viewModel.actualizarDiaSeleccionado(dia)
                                 },
                             shape = RoundedCornerShape(10.dp),
                             colors = CardDefaults.cardColors(

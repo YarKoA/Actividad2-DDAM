@@ -20,6 +20,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.actividad2_ddam.model.Tarea
@@ -35,7 +36,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun EventFormScreen(
     navController: NavController,
-    viewModel: EventViewModel = viewModel(),
+    viewModel: EventViewModel = hiltViewModel(),
     onCerrar: () -> Unit
 ) {
     var tit by remember { mutableStateOf("") }
@@ -63,7 +64,8 @@ fun EventFormScreen(
             confirmButton = {
                 TextButton(onClick = {
                     datePickerState.selectedDateMillis?.let { millis ->
-                        fechaSeleccionada = Instant.ofEpochMilli(millis).atZone(ZoneId.of("UTC")).toLocalDate()
+                        // USAR systemDefault() PARA EVITAR DESFASES DE DÍA
+                        fechaSeleccionada = Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).toLocalDate()
                     }
                     mostrarDatePicker = false
                 }) { Text("Aceptar") }
@@ -268,9 +270,12 @@ fun EventFormScreen(
                             Surface(
                                 modifier = Modifier
                                     .clickable {
-                                        val nuevoSet = repetirSeleccionados.toMutableSet()
-                                        if (estaSeleccionado) nuevoSet.remove(opcion) else nuevoSet.add(opcion)
-                                        repetirSeleccionados = nuevoSet
+                                        // Forma reactiva y segura para Compose
+                                        repetirSeleccionados = if (estaSeleccionado) {
+                                            repetirSeleccionados - opcion
+                                        } else {
+                                            repetirSeleccionados + opcion
+                                        }
                                     },
                                 shape = RoundedCornerShape(10.dp),
                                 color = if (estaSeleccionado) Color(0xFF385A79) else Color(0xFF7A9BBF)
