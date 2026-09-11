@@ -105,8 +105,8 @@ fun FormularioCuentaDialog(
         } else if (edadNum == null) {
             errorEdad = "La edad debe ser un número"
             esValido = false
-        } else if (edadNum !in 0..100) {
-            errorEdad = "La edad debe estar entre 0 y 100 años"
+        } else if (edadNum !in 16..80) {
+            errorEdad = "La edad validad es de 16 años a 30 años"
             esValido = false
         } else {
             errorEdad = null

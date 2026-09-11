@@ -21,7 +21,8 @@ data class Tarea(
     val desc: String?,
     val hora: String,
     val dia: String,
-    val repetir: String = "No"
+    val repetir: String = "No",
+    val esAnclada: Boolean = false
 ) : GestionTarea {
     override fun mostrar() = "$titulo - $dia a las $hora"
 }

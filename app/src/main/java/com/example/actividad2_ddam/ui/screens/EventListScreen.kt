@@ -176,6 +176,11 @@ fun EventListScreen(
                                         viewModel.removeEvent(tarea)
                                         Toast.makeText(ctx, "Actividad eliminada", Toast.LENGTH_SHORT).show()
                                     },
+                                    onAnclar = {
+                                        viewModel.toggleAnclar(tarea)
+                                        val msj = if (!tarea.esAnclada) "📌 Tarea marcada como importante" else "Tarea desmarcada"
+                                        Toast.makeText(ctx, msj, Toast.LENGTH_SHORT).show()
+                                    },
                                     onEditarClick = {
                                         navController.navigate(Routes.eventEdit(tarea.id))
                                     },
@@ -199,6 +204,11 @@ fun EventListScreen(
                                     onDelete = {
                                         viewModel.removeEvent(tarea)
                                         Toast.makeText(ctx, "Actividad eliminada", Toast.LENGTH_SHORT).show()
+                                    },
+                                    onAnclar = {
+                                        viewModel.toggleAnclar(tarea)
+                                        val msj = if (!tarea.esAnclada) "📌 Tarea marcada como importante" else "Tarea desmarcada"
+                                        Toast.makeText(ctx, msj, Toast.LENGTH_SHORT).show()
                                     },
                                     onEditarClick = {
                                         navController.navigate(Routes.eventEdit(tarea.id))

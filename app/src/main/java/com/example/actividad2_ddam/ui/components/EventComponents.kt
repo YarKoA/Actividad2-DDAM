@@ -8,6 +8,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -24,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -37,31 +39,58 @@ import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
 
-// Componente Tarjeta Plegable (EventCard) con animación de contenido
 @Composable
 fun EventCard(
     event: Tarea,
     diaTexto: String = event.dia,
     onExpand: (Boolean) -> Unit = {},
+    onAnclar: () -> Unit = {},
     onEditarClick: () -> Unit = {},
     onAlarmaClick: () -> Unit = {}
 ) {
     var isExpanded by remember { mutableStateOf(false) }
 
-    // Mes dinámico basado en la fecha actual
     val mesActual = LocalDate.now().month.getDisplayName(TextStyle.SHORT, Locale("es", "ES"))
         .replaceFirstChar { it.uppercase() }
+
+    val pointerModifier = Modifier.pointerInput(event.id, event.esAnclada) {
+        detectTapGestures(
+            onLongPress = {
+                onAnclar()
+            }
+        )
+    }
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .then(pointerModifier)
             .animateContentSize(),
         shape = RoundedCornerShape(20.dp),
+        border = if (event.esAnclada) BorderStroke(2.dp, Color(0xFF556DB5)) else null,
         colors = CardDefaults.cardColors(
-            containerColor = if (Repo.modoOscuro) Color(0xFF252525) else Color(0xFFF1EFFE)
+            containerColor = if (event.esAnclada) {
+                if (Repo.modoOscuro) Color(0xFF343A4D) else Color(0xFFDCE6FF)
+            } else {
+                if (Repo.modoOscuro) Color(0xFF252525) else Color(0xFFF1EFFE)
+            }
         )
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
+            if (event.esAnclada) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(bottom = 6.dp)
+                ) {
+                    Text(
+                        text = "📌 Tarea importante",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF3B5E8C)
+                    )
+                }
+            }
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -145,13 +174,13 @@ fun EventCard(
     }
 }
 
-// Componente con gesto de deslizamiento para eliminar (SwipeToDismissBox)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SwipeableEventCard(
     event: Tarea,
     diaTexto: String = event.dia,
     onDelete: () -> Unit,
+    onAnclar: () -> Unit = {},
     onEditarClick: () -> Unit = {},
     onAlarmaClick: () -> Unit = {}
 ) {
@@ -177,7 +206,7 @@ fun SwipeableEventCard(
                     .padding(horizontal = 20.dp),
                 contentAlignment = Alignment.CenterEnd
             ) {
-                Text("Eliminar", color = Color.White, fontWeight = FontWeight.Bold)
+                Text("Deslizar para eliminar", color = Color.White, fontWeight = FontWeight.Bold)
             }
         }
     ) {
@@ -185,13 +214,13 @@ fun SwipeableEventCard(
             event = event,
             diaTexto = diaTexto,
             onExpand = {},
+            onAnclar = onAnclar,
             onEditarClick = onEditarClick,
             onAlarmaClick = onAlarmaClick
         )
     }
 }
 
-// Barra de navegación inferior
 @Composable
 fun BottomNavBar(
     navController: NavController,
@@ -236,7 +265,6 @@ fun BottomNavBar(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // 1. Home
             NavItemButton(
                 icon = Icons.Default.Home,
                 label = "HOME",
@@ -252,7 +280,6 @@ fun BottomNavBar(
                 }
             )
 
-            // 2. Calendar
             NavItemButton(
                 icon = Icons.Default.DateRange,
                 label = "CALEND",
@@ -268,7 +295,6 @@ fun BottomNavBar(
                 }
             )
 
-            // 3. Settings
             NavItemButton(
                 icon = Icons.Default.Settings,
                 label = "CONFIG",

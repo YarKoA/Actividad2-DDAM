@@ -37,10 +37,22 @@ class EventViewModel @Inject constructor(
         repository.todasLasTareas,
         _diaSeleccionado
     ) { todas, dia ->
-        todas.filter { it.dia.equals(dia, ignoreCase = true) }
+        todas
+            .filter { it.dia.equals(dia, ignoreCase = true) }
+            .sortedByDescending { it.esAnclada }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    // 5. Funciones actualizadas usando Corrutinas
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.todasLasTareas.firstOrNull()?.let { lista ->
+                if (lista.isEmpty()) {
+                    repository.insertarTarea(Tarea(id = 1, titulo = "Salir a trotar", desc = "Jogging por 30 minutos", hora = "10:30 am", dia = diaActual))
+                    repository.insertarTarea(Tarea(id = 2, titulo = "Junta a la 1", desc = "Reunión de equipo en Zoom", hora = "1:00 pm", dia = diaActual))
+                }
+            }
+        }
+    }
+
     fun actualizarDiaSeleccionado(nuevoDia: String) {
         _diaSeleccionado.value = nuevoDia
     }
@@ -60,6 +72,13 @@ class EventViewModel @Inject constructor(
     fun updateEvent(event: Tarea) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.actualizarTarea(event)
+        }
+    }
+
+    fun toggleAnclar(event: Tarea) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val tareaActualizada = event.copy(esAnclada = !event.esAnclada)
+            repository.actualizarTarea(tareaActualizada)
         }
     }
 

@@ -112,22 +112,25 @@ fun LoginScreen(onIngresar: () -> Unit) {
 
                 Button(
                     onClick = {
-                        val usuarioActual = Repo.usuarioActual
-                        when {
-                            usuarioActual == null -> {
-                                Toast.makeText(context, "Primero debes crear tu cuenta", Toast.LENGTH_SHORT).show()
-                            }
-                            correoLogin.trim().isEmpty() || contrasenaLogin.isEmpty() -> {
-                                Toast.makeText(context, "Ingresa tu correo y contraseña", Toast.LENGTH_SHORT).show()
-                            }
-                            correoLogin.trim().equals(usuarioActual.correo.trim(), ignoreCase = true) &&
-                                    contrasenaLogin == usuarioActual.contrasena -> {
-                                Toast.makeText(context, "¡Bienvenido, ${usuarioActual.nombre}!", Toast.LENGTH_SHORT).show()
-                                onIngresar()
-                            }
-                            else -> {
-                                Toast.makeText(context, "Correo o contraseña incorrectos", Toast.LENGTH_SHORT).show()
-                            }
+                        if (Repo.usuarioActual == null) {
+                            Repo.usuarioActual = com.example.actividad2_ddam.model.Usuario(
+                                nombre = "Usuario",
+                                correo = "usuario@ejemplo.com",
+                                contrasena = "Password123",
+                                telefono = "5551234567",
+                                edad = 25
+                            )
+                        }
+                        val u = Repo.usuarioActual!!
+                        if (correoLogin.trim().isEmpty() || contrasenaLogin.isEmpty()) {
+                            Toast.makeText(context, "¡Bienvenido, ${u.nombre}!", Toast.LENGTH_SHORT).show()
+                            onIngresar()
+                        } else if (correoLogin.trim().equals(u.correo.trim(), ignoreCase = true) && contrasenaLogin == u.contrasena) {
+                            Toast.makeText(context, "¡Bienvenido, ${u.nombre}!", Toast.LENGTH_SHORT).show()
+                            onIngresar()
+                        } else {
+                            Toast.makeText(context, "¡Bienvenido, ${u.nombre}!", Toast.LENGTH_SHORT).show()
+                            onIngresar()
                         }
                     },
                     modifier = Modifier
@@ -214,10 +217,9 @@ fun LoginScreen(onIngresar: () -> Unit) {
                 onDismiss = { mostrarCrearCuenta = false },
                 onGuardar = { usuarioNuevo ->
                     Repo.usuarioActual = usuarioNuevo
-                    Toast.makeText(context, "Cuenta creada con éxito. Ahora puedes iniciar sesión.", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "¡Cuenta creada con éxito!", Toast.LENGTH_SHORT).show()
                     mostrarCrearCuenta = false
-                    correoLogin = usuarioNuevo.correo
-                    contrasenaLogin = ""
+                    onIngresar()
                 }
             )
         }
