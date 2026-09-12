@@ -82,6 +82,7 @@ class EventViewModel @Inject constructor(
         }
     }
 
+
     fun getEventById(id: Int): Tarea? {
         return _todasLasTareas.value.find { it.id == id }
     }

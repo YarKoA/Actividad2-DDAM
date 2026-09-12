@@ -18,29 +18,34 @@ import com.example.actividad2_ddam.R
 import kotlinx.coroutines.delay
 
 @Composable
-fun SplashScreen(onSplashFinished: () -> Unit) {
-    // Cargar la animación vectorial Lottie desde res/raw/logo_animation.json
-    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.logo_animation))
-    val logoAnimationState = animateLottieCompositionAsState(
-        composition = composition,
-        iterations = 1
+fun SplashScreen(
+    onSplashFinished: () -> Unit
+) {
+
+    // Animación del logo
+    val composition by rememberLottieComposition(
+        LottieCompositionSpec.RawRes(
+            R.raw.logo_animation
+        )
     )
 
-    // Detectar cuando la animación vectorial ha finalizado
-    LaunchedEffect(logoAnimationState.isAtEnd, logoAnimationState.progress) {
-        if (logoAnimationState.isAtEnd && logoAnimationState.progress > 0f) {
-            onSplashFinished()
-        }
-    }
+    val logoAnimationState =
+        animateLottieCompositionAsState(
+            composition = composition,
+            iterations = 1
+        )
 
-    // Tiempo de respaldo máximo
+    // Tiempo indicado en el documento:
+    // 2145 ms antes de pasar al Login
     LaunchedEffect(Unit) {
-        delay(2800)
+
+        delay(2145)
+
         onSplashFinished()
     }
 
     val fondo = Brush.verticalGradient(
-        listOf(
+        colors = listOf(
             Color(0xFF2C3E6B),
             Color(0xFF4B6B94),
             Color(0xFF8BB5CE)
@@ -53,25 +58,39 @@ fun SplashScreen(onSplashFinished: () -> Unit) {
             .background(fondo),
         contentAlignment = Alignment.Center
     ) {
+
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            horizontalAlignment =
+                Alignment.CenterHorizontally,
+
+            verticalArrangement =
+                Arrangement.Center
         ) {
+
             if (composition != null) {
+
                 LottieAnimation(
                     composition = composition,
-                    progress = { logoAnimationState.progress },
+                    progress = {
+                        logoAnimationState.progress
+                    },
                     modifier = Modifier.size(220.dp)
                 )
+
             } else {
+
                 Image(
-                    painter = painterResource(id = R.drawable.logo_tareum),
+                    painter = painterResource(
+                        id = R.drawable.logo_tareum
+                    ),
                     contentDescription = "Logo TAREUM",
                     modifier = Modifier.size(180.dp)
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
 
             Text(
                 text = "TAREUM",
@@ -80,11 +99,15 @@ fun SplashScreen(onSplashFinished: () -> Unit) {
                 fontWeight = FontWeight.Bold
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(
+                modifier = Modifier.height(8.dp)
+            )
 
             Text(
                 text = "Gestión inteligente de actividades",
-                color = Color.White.copy(alpha = 0.85f),
+                color = Color.White.copy(
+                    alpha = 0.85f
+                ),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium
             )
