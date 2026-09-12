@@ -40,6 +40,8 @@ data class Usuario(
 object Repo {
     var usuarioActual: Usuario? = null
     var modoOscuro by mutableStateOf(false)
+    var letraGrande by mutableStateOf(false)
+    var grosorGrueso by mutableStateOf(false)
 
     // NOTA: Estas dos variables pronto desaparecerán porque la base de datos
     // se encargará del ID y de guardar las tareas, pero las dejamos por ahora

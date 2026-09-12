@@ -100,8 +100,14 @@ fun AppNavigation(
             },
 
             exitTransition = {
-                fadeOut(
-                    animationSpec = tween(250)
+                slideOutOfContainer(
+                    towards =
+                        AnimatedContentTransitionScope
+                            .SlideDirection.Up,
+
+                    animationSpec = tween(400)
+                ) + fadeOut(
+                    animationSpec = tween(400)
                 )
             }
         ) {
@@ -124,14 +130,38 @@ fun AppNavigation(
             route = Routes.EVENT_LIST,
 
             enterTransition = {
-                fadeIn(
-                    animationSpec = tween(250)
+                slideIntoContainer(
+                    towards =
+                        AnimatedContentTransitionScope
+                            .SlideDirection.Up,
+
+                    animationSpec = tween(400)
+                ) + fadeIn(
+                    animationSpec = tween(400)
                 )
             },
 
             exitTransition = {
                 fadeOut(
-                    animationSpec = tween(250)
+                    animationSpec = tween(300)
+                )
+            },
+
+            popEnterTransition = {
+                fadeIn(
+                    animationSpec = tween(300)
+                )
+            },
+
+            popExitTransition = {
+                slideOutOfContainer(
+                    towards =
+                        AnimatedContentTransitionScope
+                            .SlideDirection.Down,
+
+                    animationSpec = tween(400)
+                ) + fadeOut(
+                    animationSpec = tween(400)
                 )
             }
         ) {

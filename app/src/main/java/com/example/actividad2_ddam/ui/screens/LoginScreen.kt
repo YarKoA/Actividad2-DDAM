@@ -1,8 +1,8 @@
 package com.example.actividad2_ddam.ui.screens
 
 import android.widget.Toast
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -44,6 +44,10 @@ fun LoginScreen(onIngresar: () -> Unit) {
     }
 
     var mostrarCrearCuenta by remember {
+        mutableStateOf(false)
+    }
+
+    var isLoading by remember {
         mutableStateOf(false)
     }
 
@@ -325,11 +329,9 @@ fun LoginScreen(onIngresar: () -> Unit) {
 
                                 Toast.makeText(
                                     context,
-                                    "¡Bienvenido, ${u.nombre}!",
+                                    "Por favor, llena todos los campos",
                                     Toast.LENGTH_SHORT
                                 ).show()
-
-                                onIngresar()
 
                             } else if (
                                 correoLogin
@@ -343,6 +345,10 @@ fun LoginScreen(onIngresar: () -> Unit) {
                                 u.contrasena
                             ) {
 
+                                isLoading = true
+                                delay(3000)
+                                isLoading = false
+
                                 Toast.makeText(
                                     context,
                                     "¡Bienvenido, ${u.nombre}!",
@@ -355,11 +361,10 @@ fun LoginScreen(onIngresar: () -> Unit) {
 
                                 Toast.makeText(
                                     context,
-                                    "¡Bienvenido, ${u.nombre}!",
+                                    "Credenciales incorrectas",
                                     Toast.LENGTH_SHORT
                                 ).show()
 
-                                onIngresar()
                             }
                         }
                     },
@@ -578,6 +583,106 @@ fun LoginScreen(onIngresar: () -> Unit) {
                     onIngresar()
                 }
             )
+        }
+
+        if (isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Color.Black.copy(alpha = 0.5f)
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                val infiniteTransition =
+                    rememberInfiniteTransition(
+                        label = "loading"
+                    )
+
+                val rotation by
+                infiniteTransition.animateFloat(
+                    initialValue = 0f,
+                    targetValue = 360f,
+                    animationSpec =
+                        infiniteRepeatable(
+                            animation = tween(
+                                1000,
+                                easing =
+                                    LinearEasing
+                            ),
+                            repeatMode =
+                                RepeatMode.Restart
+                        ),
+                    label = "rotation"
+                )
+
+                Canvas(
+                    modifier =
+                        Modifier.size(80.dp)
+                ) {
+                    val dotCount = 12
+                    val radius =
+                        size.minDimension / 2f
+                    val dotRadius =
+                        radius * 0.12f
+
+                    for (i in 0 until dotCount) {
+                        val angle =
+                            (360f / dotCount) *
+                                    i + rotation
+
+                        val rad =
+                            Math.toRadians(
+                                angle.toDouble()
+                            )
+
+                        val x =
+                            center.x +
+                                    radius * 0.75f *
+                                    kotlin.math.cos(
+                                        rad
+                                    ).toFloat()
+
+                        val y =
+                            center.y +
+                                    radius * 0.75f *
+                                    kotlin.math.sin(
+                                        rad
+                                    ).toFloat()
+
+                        val alpha =
+                            0.3f + 0.7f *
+                                    (i.toFloat() /
+                                            dotCount)
+
+                        drawCircle(
+                            color = Color(
+                                0xFFBBA8E8
+                            ).copy(
+                                alpha = alpha
+                            ),
+                            radius = dotRadius,
+                            center =
+                                androidx.compose
+                                    .ui.geometry
+                                    .Offset(x, y)
+                        )
+                    }
+                }
+
+                Spacer(
+                    modifier =
+                        Modifier.height(16.dp)
+                )
+
+                Text(
+                    text = "Cargando...",
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    fontWeight =
+                        FontWeight.Medium
+                )
+            }
         }
     }
 }

@@ -1,12 +1,16 @@
 package com.example.actividad2_ddam.ui.screens
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.tween
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -101,6 +105,34 @@ fun EventListScreen(
     viewModel
         .diaSeleccionado
         .collectAsState()
+
+    // Para la animación de deslizamiento
+    var diaAnteriorIndex by remember {
+        mutableIntStateOf(0)
+    }
+
+    val diasSemana = listOf(
+        "Lun", "Mar", "Mie",
+        "Jue", "Vie", "Sab",
+        "Dom"
+    )
+
+    val diaActualIndex =
+        diasSemana.indexOf(
+            diaSeleccionado
+        )
+
+    val slideDirection =
+        if (diaActualIndex >=
+            diaAnteriorIndex
+        ) 1 else -1
+
+    LaunchedEffect(
+        diaSeleccionado
+    ) {
+        diaAnteriorIndex =
+            diaActualIndex
+    }
 
     val tareasFiltradas by
     viewModel
@@ -351,225 +383,251 @@ fun EventListScreen(
                 // LISTA
                 // -------------------------
 
-                if (
-                    tareasFiltradas
-                        .isEmpty()
-                ) {
+                AnimatedContent(
+                    targetState =
+                        diaSeleccionado,
 
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth(),
+                    transitionSpec = {
+                        slideInHorizontally(
+                            animationSpec =
+                                tween(300)
+                        ) {
+                            it * slideDirection
+                        } togetherWith
+                        slideOutHorizontally(
+                            animationSpec =
+                                tween(300)
+                        ) {
+                            -it * slideDirection
+                        }
+                    },
 
-                        contentAlignment =
-                            Alignment.Center
+                    label =
+                        "daySlideAnimation",
+
+                    modifier = Modifier
+                        .weight(1f)
+                ) { dia ->
+
+                    if (
+                        tareasFiltradas
+                            .isEmpty()
                     ) {
 
-                        Text(
-                            text =
-                                "Sin actividades para hoy",
-
-                            color =
-                                Color.White
-                        )
-                    }
-
-                } else {
-
-                    if (isWideScreen) {
-
-                        LazyVerticalGrid(
-                            columns =
-                                GridCells.Fixed(2),
-
+                        Box(
                             modifier = Modifier
-                                .weight(1f)
-                                .padding(
-                                    top = 20.dp
-                                ),
+                                .fillMaxSize(),
 
-                            verticalArrangement =
-                                Arrangement
-                                    .spacedBy(
-                                        16.dp
-                                    ),
-
-                            horizontalArrangement =
-                                Arrangement
-                                    .spacedBy(
-                                        16.dp
-                                    )
+                            contentAlignment =
+                                Alignment.Center
                         ) {
 
-                            items(
-                                tareasFiltradas,
-                                key = {
-                                    it.id
-                                }
-                            ) { tarea ->
+                            Text(
+                                text =
+                                    "Sin actividades para hoy",
 
-                                SwipeableEventCard(
-                                    event =
-                                        tarea,
-
-                                    diaTexto =
-                                        diaSeleccionado,
-
-                                    onDelete = {
-
-                                        viewModel
-                                            .removeEvent(
-                                                tarea
-                                            )
-
-                                        Toast
-                                            .makeText(
-                                                ctx,
-                                                "Actividad eliminada",
-                                                Toast.LENGTH_SHORT
-                                            )
-                                            .show()
-                                    },
-
-                                    onAnclar = {
-
-                                        viewModel
-                                            .toggleAnclar(
-                                                tarea
-                                            )
-
-                                        val msj =
-                                            if (
-                                                !tarea.esAnclada
-                                            ) {
-                                                "📌 Tarea marcada como importante"
-                                            } else {
-                                                "Tarea desmarcada"
-                                            }
-
-                                        Toast
-                                            .makeText(
-                                                ctx,
-                                                msj,
-                                                Toast.LENGTH_SHORT
-                                            )
-                                            .show()
-                                    },
-
-                                    onEditarClick = {
-
-                                        eventoEditandoId =
-                                            tarea.id
-
-                                        mostrarPanelEdicion =
-                                            true
-                                    },
-
-                                    onAlarmaClick = {
-
-                                        Toast
-                                            .makeText(
-                                                ctx,
-                                                "Recordatorio activado",
-                                                Toast.LENGTH_SHORT
-                                            )
-                                            .show()
-                                    }
-                                )
-                            }
+                                color =
+                                    Color.White
+                            )
                         }
 
                     } else {
 
-                        LazyColumn(
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(
-                                    top = 20.dp
-                                ),
+                        if (isWideScreen) {
 
-                            verticalArrangement =
-                                Arrangement
-                                    .spacedBy(
-                                        16.dp
-                                    )
-                        ) {
+                            LazyVerticalGrid(
+                                columns =
+                                    GridCells.Fixed(2),
 
-                            items(
-                                tareasFiltradas,
-                                key = {
-                                    it.id
-                                }
-                            ) { tarea ->
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(
+                                        top = 20.dp
+                                    ),
 
-                                SwipeableEventCard(
-                                    event =
-                                        tarea,
+                                verticalArrangement =
+                                    Arrangement
+                                        .spacedBy(
+                                            16.dp
+                                        ),
 
-                                    diaTexto =
-                                        diaSeleccionado,
+                                horizontalArrangement =
+                                    Arrangement
+                                        .spacedBy(
+                                            16.dp
+                                        )
+                            ) {
 
-                                    onDelete = {
-
-                                        viewModel
-                                            .removeEvent(
-                                                tarea
-                                            )
-
-                                        Toast
-                                            .makeText(
-                                                ctx,
-                                                "Actividad eliminada",
-                                                Toast.LENGTH_SHORT
-                                            )
-                                            .show()
-                                    },
-
-                                    onAnclar = {
-
-                                        viewModel
-                                            .toggleAnclar(
-                                                tarea
-                                            )
-
-                                        val msj =
-                                            if (
-                                                !tarea.esAnclada
-                                            ) {
-                                                "📌 Tarea marcada como importante"
-                                            } else {
-                                                "Tarea desmarcada"
-                                            }
-
-                                        Toast
-                                            .makeText(
-                                                ctx,
-                                                msj,
-                                                Toast.LENGTH_SHORT
-                                            )
-                                            .show()
-                                    },
-
-                                    onEditarClick = {
-
-                                        eventoEditandoId =
-                                            tarea.id
-
-                                        mostrarPanelEdicion =
-                                            true
-                                    },
-
-                                    onAlarmaClick = {
-
-                                        Toast
-                                            .makeText(
-                                                ctx,
-                                                "Recordatorio activado",
-                                                Toast.LENGTH_SHORT
-                                            )
-                                            .show()
+                                items(
+                                    tareasFiltradas,
+                                    key = {
+                                        it.id
                                     }
-                                )
+                                ) { tarea ->
+
+                                    SwipeableEventCard(
+                                        event =
+                                            tarea,
+
+                                        diaTexto =
+                                            diaSeleccionado,
+
+                                        onDelete = {
+
+                                            viewModel
+                                                .removeEvent(
+                                                    tarea
+                                                )
+
+                                            Toast
+                                                .makeText(
+                                                    ctx,
+                                                    "Actividad eliminada",
+                                                    Toast.LENGTH_SHORT
+                                                )
+                                                .show()
+                                        },
+
+                                        onAnclar = {
+
+                                            viewModel
+                                                .toggleAnclar(
+                                                    tarea
+                                                )
+
+                                            val msj =
+                                                if (
+                                                    !tarea.esAnclada
+                                                ) {
+                                                    "\uD83D\uDCCC Tarea marcada como importante"
+                                                } else {
+                                                    "Tarea desmarcada"
+                                                }
+
+                                            Toast
+                                                .makeText(
+                                                    ctx,
+                                                    msj,
+                                                    Toast.LENGTH_SHORT
+                                                )
+                                                .show()
+                                        },
+
+                                        onEditarClick = {
+
+                                            eventoEditandoId =
+                                                tarea.id
+
+                                            mostrarPanelEdicion =
+                                                true
+                                        },
+
+                                        onAlarmaClick = {
+
+                                            Toast
+                                                .makeText(
+                                                    ctx,
+                                                    "Recordatorio activado",
+                                                    Toast.LENGTH_SHORT
+                                                )
+                                                .show()
+                                        }
+                                    )
+                                }
+                            }
+
+                        } else {
+
+                            LazyColumn(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(
+                                        top = 20.dp
+                                    ),
+
+                                verticalArrangement =
+                                    Arrangement
+                                        .spacedBy(
+                                            16.dp
+                                        )
+                            ) {
+
+                                items(
+                                    tareasFiltradas,
+                                    key = {
+                                        it.id
+                                    }
+                                ) { tarea ->
+
+                                    SwipeableEventCard(
+                                        event =
+                                            tarea,
+
+                                        diaTexto =
+                                            diaSeleccionado,
+
+                                        onDelete = {
+
+                                            viewModel
+                                                .removeEvent(
+                                                    tarea
+                                                )
+
+                                            Toast
+                                                .makeText(
+                                                    ctx,
+                                                    "Actividad eliminada",
+                                                    Toast.LENGTH_SHORT
+                                                )
+                                                .show()
+                                        },
+
+                                        onAnclar = {
+
+                                            viewModel
+                                                .toggleAnclar(
+                                                    tarea
+                                                )
+
+                                            val msj =
+                                                if (
+                                                    !tarea.esAnclada
+                                                ) {
+                                                    "\uD83D\uDCCC Tarea marcada como importante"
+                                                } else {
+                                                    "Tarea desmarcada"
+                                                }
+
+                                            Toast
+                                                .makeText(
+                                                    ctx,
+                                                    msj,
+                                                    Toast.LENGTH_SHORT
+                                                )
+                                                .show()
+                                        },
+
+                                        onEditarClick = {
+
+                                            eventoEditandoId =
+                                                tarea.id
+
+                                            mostrarPanelEdicion =
+                                                true
+                                        },
+
+                                        onAlarmaClick = {
+
+                                            Toast
+                                                .makeText(
+                                                    ctx,
+                                                    "Recordatorio activado",
+                                                    Toast.LENGTH_SHORT
+                                                )
+                                                .show()
+                                        }
+                                    )
+                                }
                             }
                         }
                     }

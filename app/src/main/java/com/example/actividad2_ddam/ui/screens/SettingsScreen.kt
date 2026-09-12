@@ -125,25 +125,69 @@ fun SettingsScreen(
 
                     Spacer(modifier = Modifier.height(32.dp))
 
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("Modo oscuro", fontSize = 16.sp, color = if (Repo.modoOscuro) Color.White else Color.Black, modifier = Modifier.padding(end = 16.dp))
-                        Switch(
-                            checked = Repo.modoOscuro,
-                            onCheckedChange = { Repo.modoOscuro = it },
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = Color(0xFFEDE2FF),
-                                checkedTrackColor = Color(0xFF5A75A7),
-                                uncheckedThumbColor = Color(0xFF5A75A7),
-                                uncheckedTrackColor = Color(0xFFEDE2FF),
-                                uncheckedBorderColor = Color.LightGray
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                            Text("Modo oscuro", fontSize = 16.sp, color = if (Repo.modoOscuro) Color.White else Color.Black, modifier = Modifier.weight(1f))
+                            Switch(
+                                checked = Repo.modoOscuro,
+                                onCheckedChange = { Repo.modoOscuro = it },
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = Color(0xFFEDE2FF),
+                                    checkedTrackColor = Color(0xFF5A75A7),
+                                    uncheckedThumbColor = Color(0xFF5A75A7),
+                                    uncheckedTrackColor = Color(0xFFEDE2FF),
+                                    uncheckedBorderColor = Color.LightGray
+                                )
                             )
-                        )
-                        Text(
-                            text = if (Repo.modoOscuro) " sí" else " no",
-                            color = if (Repo.modoOscuro) Color.White else Color.Black,
-                            fontSize = 16.sp,
-                            modifier = Modifier.padding(start = 8.dp)
-                        )
+                            Text(
+                                text = if (Repo.modoOscuro) " sí" else " no",
+                                color = if (Repo.modoOscuro) Color.White else Color.Black,
+                                fontSize = 16.sp,
+                                modifier = Modifier.width(85.dp).padding(start = 8.dp)
+                            )
+                        }
+
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                            Text("Tipografía", fontSize = 16.sp, color = if (Repo.modoOscuro) Color.White else Color.Black, modifier = Modifier.weight(1f))
+                            Switch(
+                                checked = Repo.letraGrande,
+                                onCheckedChange = { Repo.letraGrande = it },
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = Color(0xFFEDE2FF),
+                                    checkedTrackColor = Color(0xFF5A75A7),
+                                    uncheckedThumbColor = Color(0xFF5A75A7),
+                                    uncheckedTrackColor = Color(0xFFEDE2FF),
+                                    uncheckedBorderColor = Color.LightGray
+                                )
+                            )
+                            Text(
+                                text = if (Repo.letraGrande) " Grande" else " Pequeño",
+                                color = if (Repo.modoOscuro) Color.White else Color.Black,
+                                fontSize = 16.sp,
+                                modifier = Modifier.width(85.dp).padding(start = 8.dp)
+                            )
+                        }
+
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                            Text("Grosor de letra", fontSize = 16.sp, color = if (Repo.modoOscuro) Color.White else Color.Black, modifier = Modifier.weight(1f))
+                            Switch(
+                                checked = Repo.grosorGrueso,
+                                onCheckedChange = { Repo.grosorGrueso = it },
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = Color(0xFFEDE2FF),
+                                    checkedTrackColor = Color(0xFF5A75A7),
+                                    uncheckedThumbColor = Color(0xFF5A75A7),
+                                    uncheckedTrackColor = Color(0xFFEDE2FF),
+                                    uncheckedBorderColor = Color.LightGray
+                                )
+                            )
+                            Text(
+                                text = if (Repo.grosorGrueso) " Grueso" else " Delgado",
+                                color = if (Repo.modoOscuro) Color.White else Color.Black,
+                                fontSize = 16.sp,
+                                modifier = Modifier.width(85.dp).padding(start = 8.dp)
+                            )
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(24.dp))

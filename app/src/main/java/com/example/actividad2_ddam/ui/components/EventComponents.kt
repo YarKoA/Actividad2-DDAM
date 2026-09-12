@@ -717,9 +717,9 @@ private fun NavItemButton(
     val size by animateDpAsState(
         targetValue =
             if (isActive) {
-                64.dp
+                72.dp
             } else {
-                46.dp
+                54.dp
             },
 
         animationSpec =
@@ -848,9 +848,9 @@ private fun NavItemButton(
                     modifier =
                         Modifier.size(
                             if (isActive) {
-                                25.dp
+                                32.dp
                             } else {
-                                22.dp
+                                28.dp
                             }
                         )
                 )
@@ -867,7 +867,7 @@ private fun NavItemButton(
                     Text(
                         text = label,
 
-                        fontSize = 7.sp,
+                        fontSize = 10.sp,
 
                         fontWeight =
                             FontWeight.Bold,

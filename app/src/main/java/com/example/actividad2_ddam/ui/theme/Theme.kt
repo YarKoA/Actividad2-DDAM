@@ -50,9 +50,11 @@ fun Actividad2DDAMTheme(
         else -> LightColorScheme
     }
 
+    val typography = getAppTypography(com.example.actividad2_ddam.model.Repo.letraGrande, com.example.actividad2_ddam.model.Repo.grosorGrueso)
+
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
+        typography = typography,
         content = content
     )
 }
