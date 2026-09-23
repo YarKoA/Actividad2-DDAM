@@ -3,8 +3,12 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.google.services)
 }
 
+hilt{
+    enableAggregatingTask = false
+}
 android {
     namespace = "com.example.actividad2_ddam"
     compileSdk = 37
@@ -51,9 +55,14 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
+
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
+
     implementation(libs.lottie.compose)
+
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
 
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
