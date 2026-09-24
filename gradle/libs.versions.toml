@@ -17,11 +17,13 @@ lottie = "6.6.2"
 room = "2.6.1"
 
 ksp = "2.2.10-2.0.2"
-firebase-bom-v = "43.19.0"
+firebase-bom-v = "33.3.0"
 google-services-v = "4.5.0"
 hiltV = "2.56.2"
 hiltNavigationComposeV = "1.2.0"
 kspV = "2.0.21-1.0.25"
+
+navV = "2.8.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -50,6 +52,7 @@ room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 firebase-bom = {group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom-v"}
 firebase-auth = {group = "com.google.firebase", name = "firebase-auth"}
+navigation-compose = {group= "androidx.navigation", name = "navigation-compose", version.ref = "navV"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -111,15 +111,15 @@ fun AppNavigation(
                 )
             }
         ) {
-            LoginScreen(
-                onIngresar = {
-                    navController.navigate(Routes.EVENT_LIST) {
-                        popUpTo(Routes.LOGIN) {
-                            inclusive = true
-                        }
-                    }
-                }
-            )
+//            LoginScreen(
+//                onIngresar = {
+//                    navController.navigate(Routes.EVENT_LIST) {
+//                        popUpTo(Routes.LOGIN) {
+//                            inclusive = true
+//                        }
+//                    }
+//                }
+//            )
         }
 
 
