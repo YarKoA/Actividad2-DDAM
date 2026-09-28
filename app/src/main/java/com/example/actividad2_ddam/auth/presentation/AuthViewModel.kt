@@ -1,4 +1,6 @@
-package com.example.actividad2_ddam.auth.data
+package com.example.actividad2_ddam.auth.presentation
+
+import com.example.actividad2_ddam.auth.data.AuthRepository
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

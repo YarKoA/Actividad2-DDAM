@@ -29,6 +29,8 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import com.example.actividad2_ddam.ui.theme.scaledSp
+import com.example.actividad2_ddam.ui.theme.scaledWeight
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -440,10 +442,10 @@ fun EventEditScreen(
                             text =
                                 "Editar Actividad",
 
-                            fontSize = 22.sp,
+                            fontSize = 22.sp.scaledSp,
 
                             fontWeight =
-                                FontWeight.Bold,
+                                FontWeight.Bold.scaledWeight,
 
                             color =
                                 if (
@@ -563,7 +565,7 @@ fun EventEditScreen(
                                             },
 
                                         fontSize =
-                                            14.sp
+                                            14.sp.scaledSp
                                     )
                                 }
                             }
@@ -578,7 +580,7 @@ fun EventEditScreen(
                                 "Título de la actividad *",
 
                             fontSize =
-                                14.sp,
+                                14.sp.scaledSp,
 
                             fontWeight =
                                 FontWeight
@@ -679,7 +681,7 @@ fun EventEditScreen(
                                 "Descripción de la actividad",
 
                             fontSize =
-                                14.sp,
+                                14.sp.scaledSp,
 
                             fontWeight =
                                 FontWeight
@@ -793,7 +795,7 @@ fun EventEditScreen(
                                     "Hora de la actividad *:",
 
                                 fontSize =
-                                    14.sp,
+                                    14.sp.scaledSp,
 
                                 fontWeight =
                                     FontWeight
@@ -871,7 +873,7 @@ fun EventEditScreen(
                                     "Fecha de la actividad *:",
 
                                 fontSize =
-                                    14.sp,
+                                    14.sp.scaledSp,
 
                                 fontWeight =
                                     FontWeight
@@ -937,7 +939,7 @@ fun EventEditScreen(
                             text = "Repetir",
 
                             fontSize =
-                                14.sp,
+                                14.sp.scaledSp,
 
                             fontWeight =
                                 FontWeight
@@ -1032,7 +1034,7 @@ fun EventEditScreen(
                                             Color.White,
 
                                         fontSize =
-                                            11.sp,
+                                            11.sp.scaledSp,
 
                                         fontWeight =
                                             FontWeight
@@ -1226,10 +1228,10 @@ fun EventEditScreen(
                                     Color.White,
 
                                 fontWeight =
-                                    FontWeight.Bold,
+                                    FontWeight.Bold.scaledWeight,
 
                                 fontSize =
-                                    16.sp
+                                    16.sp.scaledSp
                             )
                         }
                     }

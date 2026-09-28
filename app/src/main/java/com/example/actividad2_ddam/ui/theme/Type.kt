@@ -1,12 +1,15 @@
 package com.example.actividad2_ddam.ui.theme
 
 import androidx.compose.material3.Typography
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.Font
 import com.example.actividad2_ddam.R
+import com.example.actividad2_ddam.model.Repo
 
 val MontserratAlternates = FontFamily(
     Font(R.font.montserrat_alternates_regular, FontWeight.Normal),
@@ -14,8 +17,22 @@ val MontserratAlternates = FontFamily(
     Font(R.font.montserrat_alternates_bold, FontWeight.Bold)
 )
 
+val TextUnit.scaledSp: TextUnit
+    @Composable
+    get() = if (Repo.letraGrande) (this.value * 1.15f).sp else this
+
+val FontWeight.scaledWeight: FontWeight
+    @Composable
+    get() = if (Repo.grosorGrueso) {
+        when (this) {
+            FontWeight.Normal -> FontWeight.Medium
+            FontWeight.Medium -> FontWeight.Bold
+            else -> FontWeight.Bold
+        }
+    } else this
+
 fun getAppTypography(letraGrande: Boolean, grosorGrueso: Boolean): Typography {
-    val scale = if (letraGrande) 1.2f else 1f
+    val scale = if (letraGrande) 1.15f else 1f
 
     fun getWeight(base: FontWeight): FontWeight {
         if (!grosorGrueso) return base

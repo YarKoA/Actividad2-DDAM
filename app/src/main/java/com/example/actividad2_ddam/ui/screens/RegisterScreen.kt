@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -22,9 +23,14 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.actividad2_ddam.R
 import com.example.actividad2_ddam.auth.presentation.register.RegisterViewModel
 import com.example.actividad2_ddam.model.Repo
 import com.example.actividad2_ddam.model.Usuario
+import com.example.actividad2_ddam.ui.theme.scaledSp
+import com.example.actividad2_ddam.ui.theme.scaledWeight
+import com.google.firebase.auth.FirebaseAuth
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun RegisterScreen(
@@ -39,14 +45,20 @@ fun RegisterScreen(
     var pass by rememberSaveable { mutableStateOf("") }
 
 
+    val context = LocalContext.current
+    val currentEmail by rememberUpdatedState(email)
     LaunchedEffect(Unit) {
         vm.event.collect{ event ->
             if (event is RegisterViewModel.RegisterEvent.Success){
+                val sharedPref = context.getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
+                sharedPref.edit().putString("last_email", currentEmail.trim()).apply()
+                FirebaseAuth.getInstance().signOut()
+                Toast.makeText(context, "Cuenta creada exitosamente", Toast.LENGTH_SHORT).show()
                 onRegistered()
             }
         }
     }
-    val context = LocalContext.current
+
 
     // Estados para guardar la información del formulario
     var nombre by rememberSaveable { mutableStateOf("") }
@@ -87,8 +99,8 @@ fun RegisterScreen(
                 Text(
                     text = "Crear Nueva Cuenta",
                     color = Color.White,
-                    fontSize = 26.sp,
-                    fontWeight = FontWeight.Bold
+                    fontSize = 26.sp.scaledSp,
+                    fontWeight = FontWeight.Bold.scaledWeight
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -97,7 +109,7 @@ fun RegisterScreen(
                 CustomTextField(
                     value = nombre,
                     onValueChange = { nombre = it },
-                    label = "Nombre completo"
+                    label = stringResource(R.string.name)
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -106,7 +118,7 @@ fun RegisterScreen(
                 CustomTextField(
                     value = email,
                     onValueChange = { email = it },
-                    label = "Correo electrónico",
+                    label = stringResource(R.string.email),
                     keyboardType = KeyboardType.Email
                 )
 
@@ -116,7 +128,7 @@ fun RegisterScreen(
                 CustomTextField(
                     value = pass,
                     onValueChange = { pass = it },
-                    label = "Contraseña",
+                    label = stringResource(R.string.password),
                     isPassword = true
                 )
 
@@ -126,7 +138,7 @@ fun RegisterScreen(
                 CustomTextField(
                     value = telefono,
                     onValueChange = { telefono = it },
-                    label = "Teléfono",
+                    label = stringResource(R.string.phone),
                     keyboardType = KeyboardType.Phone
                 )
 
@@ -136,7 +148,7 @@ fun RegisterScreen(
                 CustomTextField(
                     value = edad,
                     onValueChange = { edad = it },
-                    label = "Edad",
+                    label = stringResource(R.string.age),
                     keyboardType = KeyboardType.Number
                 )
 
@@ -144,7 +156,7 @@ fun RegisterScreen(
 
                 // BOTÓN REGISTRARSE
                 Button(
-                    enabled = !ui.loading && email.isNotBlank() && pass.isNotBlank(),
+                    enabled = !ui.loading && nombre.isNotBlank() && email.isNotBlank() && pass.isNotBlank() && telefono.isNotBlank() && edad.isNotBlank(),
                     onClick = {
                         if (nombre.isBlank() || email.isBlank() || pass.isBlank() || telefono.isBlank() || edad.isBlank()) {
                             Toast.makeText(context, "Por favor, llena todos los campos", Toast.LENGTH_SHORT).show()
@@ -162,7 +174,7 @@ fun RegisterScreen(
                                 edad = edadInt
                             )
 
-                            Toast.makeText(context, "¡Cuenta creada con éxito!", Toast.LENGTH_SHORT).show()
+                            
                         }
                     },
                     modifier = Modifier
@@ -174,12 +186,16 @@ fun RegisterScreen(
                     Text(
                         text = "Registrarse",
                         color = Color(0xFF385A79),
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold
+                        fontSize = 15.sp.scaledSp,
+                        fontWeight = FontWeight.Bold.scaledWeight
                     )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                
+                ui.error?.let { err ->
+                    Text(text = err, color = Color.Red, modifier = Modifier.padding(top = 8.dp, bottom = 8.dp))
+                }
+Spacer(modifier = Modifier.height(16.dp))
 
                 // BOTÓN CANCELAR / REGRESAR
                 Button(
@@ -193,13 +209,21 @@ fun RegisterScreen(
                     Text(
                         text = "Cancelar",
                         color = Color.White,
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Medium
+                        fontSize = 15.sp.scaledSp,
+                        fontWeight = FontWeight.Medium.scaledWeight
                     )
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
             }
+        }
+
+        androidx.compose.animation.AnimatedVisibility(
+            visible = ui.loading,
+            enter = androidx.compose.animation.fadeIn(),
+            exit = androidx.compose.animation.fadeOut()
+        ) {
+            CustomLoadingOverlay(message = "Creando cuenta...")
         }
     }
 }
@@ -207,6 +231,7 @@ fun RegisterScreen(
 // --------------------------------------------------------
 // COMPONENTE AUXILIAR PARA RECICLAR EL ESTILO DE LOS TEXTFIELDS
 // --------------------------------------------------------
+
 @Composable
 fun CustomTextField(
     value: String,

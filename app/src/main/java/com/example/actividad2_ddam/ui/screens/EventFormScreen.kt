@@ -1,1202 +1,366 @@
 package com.example.actividad2_ddam.ui.screens
 
+import android.app.TimePickerDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.filled.StarBorder
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.actividad2_ddam.model.Repo
+import com.example.actividad2_ddam.R
 import com.example.actividad2_ddam.model.Tarea
 import com.example.actividad2_ddam.viewmodel.EventViewModel
-import java.time.DayOfWeek
-import java.time.Instant
 import java.time.LocalDate
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
+import java.time.YearMonth
+import java.time.format.TextStyle
+import java.util.Locale
+import com.example.actividad2_ddam.ui.theme.scaledSp
+import com.example.actividad2_ddam.ui.theme.scaledWeight
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventFormScreen(
     navController: NavController,
     viewModel: EventViewModel = hiltViewModel(),
-    modoOverlay: Boolean = false,
     onCerrar: () -> Unit
 ) {
+    var tit by remember { mutableStateOf("") }
+    var des by remember { mutableStateOf("") }
+    var horaSeleccionada by remember { mutableStateOf("") }
+    var fechaSeleccionada by remember { mutableStateOf<LocalDate?>(LocalDate.now()) }
+    var repetirSeleccionados by remember { mutableStateOf(setOf<String>()) }
+    var priorizar by remember { mutableStateOf(true) }
+    var mensajeError by remember { mutableStateOf("") }
 
-    var tit by remember {
-        mutableStateOf("")
-    }
+    val context = LocalContext.current
+    val haptic = LocalHapticFeedback.current
+    val fondo = Brush.verticalGradient(listOf(Color(0xFF33436F), Color(0xFF4B84A8), Color(0xFF8BB5CE)))
 
-    var des by remember {
-        mutableStateOf("")
-    }
+    Box(modifier = Modifier.fillMaxSize().background(fondo).padding(16.dp)) {
 
-    var fechaSeleccionada by remember {
-        mutableStateOf<LocalDate?>(
-            LocalDate.now()
-        )
-    }
-
-    var horaSeleccionada by remember {
-        mutableStateOf("09:30 am")
-    }
-
-    var repetirSeleccionados by remember {
-        mutableStateOf(
-            setOf<String>()
-        )
-    }
-
-    var mostrarDatePicker by remember {
-        mutableStateOf(false)
-    }
-
-    var mostrarTimePicker by remember {
-        mutableStateOf(false)
-    }
-
-    var mensajeError by remember {
-        mutableStateOf("")
-    }
-
-    val titleError =
-        remember(tit, mensajeError) {
-            tit.isEmpty() &&
-                    mensajeError.isNotEmpty()
-        }
-
-    val datePickerState =
-        rememberDatePickerState()
-
-    val timePickerState =
-        rememberTimePickerState()
-
-    val fondo =
-        Brush.verticalGradient(
-            listOf(
-                Color(0xFF2C3E6B),
-                Color(0xFF4B6B94),
-                Color(0xFF8BB5CE)
-            )
-        )
-
-    // Cuando se usa como panel,
-    // el fondo queda transparente
-    val fondoPantalla =
-        if (modoOverlay) {
-
-            Brush.verticalGradient(
-                listOf(
-                    Color.Transparent,
-                    Color.Transparent
-                )
-            )
-
-        } else {
-
-            fondo
-        }
-
-    // -------------------------
-    // FECHA
-    // -------------------------
-
-    if (mostrarDatePicker) {
-
-        DatePickerDialog(
-            onDismissRequest = {
-                mostrarDatePicker = false
-            },
-
-            confirmButton = {
-
-                TextButton(
-                    onClick = {
-
-                        datePickerState
-                            .selectedDateMillis
-                            ?.let { millis ->
-
-                                fechaSeleccionada =
-                                    Instant
-                                        .ofEpochMilli(
-                                            millis
-                                        )
-                                        .atZone(
-                                            ZoneId
-                                                .systemDefault()
-                                        )
-                                        .toLocalDate()
-                            }
-
-                        mostrarDatePicker =
-                            false
-                    }
-                ) {
-                    Text("Aceptar")
-                }
-            },
-
-            dismissButton = {
-
-                TextButton(
-                    onClick = {
-                        mostrarDatePicker =
-                            false
-                    }
-                ) {
-                    Text("Cancelar")
-                }
-            }
-        ) {
-
-            DatePicker(
-                state = datePickerState
-            )
-        }
-    }
-
-    // -------------------------
-    // HORA
-    // -------------------------
-
-    if (mostrarTimePicker) {
-
-        AlertDialog(
-            onDismissRequest = {
-                mostrarTimePicker =
-                    false
-            },
-
-            confirmButton = {
-
-                TextButton(
-                    onClick = {
-
-                        val horaFormateada =
-                            String.format(
-                                java.util.Locale
-                                    .getDefault(),
-
-                                "%02d:%02d",
-
-                                timePickerState.hour,
-
-                                timePickerState.minute
-                            )
-
-                        horaSeleccionada =
-                            horaFormateada
-
-                        mostrarTimePicker =
-                            false
-                    }
-                ) {
-                    Text("Aceptar")
-                }
-            },
-
-            dismissButton = {
-
-                TextButton(
-                    onClick = {
-                        mostrarTimePicker =
-                            false
-                    }
-                ) {
-                    Text("Cancelar")
-                }
-            },
-
-            text = {
-                TimePicker(
-                    state =
-                        timePickerState
-                )
-            }
-        )
-    }
-
-    // -------------------------
-    // CONTENIDO
-    // -------------------------
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                fondoPantalla
-            ),
-
-        contentAlignment =
-            if (modoOverlay) {
-                Alignment.CenterStart
-            } else {
-                Alignment.Center
-            }
-    ) {
-
-        Box(
+        // MAIN CARD
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(
-                    start =
-                        if (modoOverlay) {
-                            12.dp
-                        } else {
-                            16.dp
-                        },
-
-                    end =
-                        if (modoOverlay) {
-                            55.dp
-                        } else {
-                            16.dp
-                        },
-
-                    top = 16.dp,
-                    bottom = 16.dp
-                ),
-
-            contentAlignment =
-                if (modoOverlay) {
-                    Alignment.CenterStart
-                } else {
-                    Alignment.Center
-                }
+                .padding(bottom = 60.dp)
+                .clip(RoundedCornerShape(24.dp))
+                .background(if (com.example.actividad2_ddam.model.Repo.modoOscuro) Color(0xFF202020) else Color(0xFFF3EDF7))
+                .padding(20.dp)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.Start
         ) {
+            Text(
+                stringResource(R.string.form_title),
+                fontSize = 22.sp.scaledSp, fontWeight = FontWeight.Bold.scaledWeight, color = Color(0xFF4B6B94)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
 
-            Card(
-                modifier = Modifier
-                    .widthIn(max = 600.dp)
-                    .fillMaxWidth()
-                    .fillMaxHeight(
-                        if (modoOverlay) {
-                            0.88f
-                        } else {
-                            0.92f
-                        }
-                    ),
+            // TITLE
+            Text(stringResource(R.string.form_enter_title), fontSize = 14.sp.scaledSp, color = Color.Black, fontWeight = FontWeight.Medium.scaledWeight)
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
+                value = tit,
+                onValueChange = { tit = it },
+                modifier = Modifier.fillMaxWidth().height(52.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = Color(0xFF90A5B8),
+                    unfocusedContainerColor = Color(0xFF90A5B8),
+                    unfocusedBorderColor = Color.Transparent,
+                    focusedBorderColor = Color.Transparent
+                )
+            )
 
-                shape =
-                    RoundedCornerShape(
-                        topStart = 32.dp,
-                        topEnd = 32.dp,
-                        bottomStart = 24.dp,
-                        bottomEnd = 24.dp
-                    ),
+            Spacer(modifier = Modifier.height(16.dp))
 
-                colors =
-                    CardDefaults.cardColors(
-                        containerColor =
-                            if (
-                                Repo.modoOscuro
-                            ) {
-                                Color(
-                                    0xFF202020
-                                )
-                            } else {
-                                Color(
-                                    0xFFF1EFFE
-                                )
-                            }
-                    ),
+            // DESCRIPTION
+            Text(stringResource(R.string.form_enter_desc), fontSize = 14.sp.scaledSp, color = Color.Black, fontWeight = FontWeight.Medium.scaledWeight)
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
+                value = des,
+                onValueChange = { des = it },
+                modifier = Modifier.fillMaxWidth().height(52.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = Color(0xFF90A5B8),
+                    unfocusedContainerColor = Color(0xFF90A5B8),
+                    unfocusedBorderColor = Color.Transparent,
+                    focusedBorderColor = Color.Transparent
+                )
+            )
 
-                elevation =
-                    CardDefaults.cardElevation(
-                        10.dp
-                    )
-            ) {
+            Spacer(modifier = Modifier.height(16.dp))
 
-                Column(
+            // HORA - Real TimePicker
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(R.string.form_hour), fontSize = 14.sp.scaledSp, color = Color.Black, fontWeight = FontWeight.Medium.scaledWeight)
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Box(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(
-                            rememberScrollState()
-                        )
-                        .padding(24.dp),
-
-                    verticalArrangement =
-                        Arrangement
-                            .spacedBy(14.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFF4B6B94))
+                        .clickable {
+                            val now = java.util.Calendar.getInstance()
+                            TimePickerDialog(
+                                context,
+                                { _, selectedHour, selectedMinute ->
+                                    val amPm = if (selectedHour < 12) "am" else "pm"
+                                    val hour12 = if (selectedHour == 0) 12 else if (selectedHour > 12) selectedHour - 12 else selectedHour
+                                    val minStr = selectedMinute.toString().padStart(2, '0')
+                                    horaSeleccionada = "$hour12:$minStr $amPm"
+                                },
+                                now.get(java.util.Calendar.HOUR_OF_DAY),
+                                now.get(java.util.Calendar.MINUTE),
+                                false
+                            ).show()
+                        }
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-
                     Text(
-                        text =
-                            "Añadir actividad",
-
-                        fontSize = 22.sp,
-
-                        fontWeight =
-                            FontWeight.Bold,
-
-                        color =
-                            if (
-                                Repo.modoOscuro
-                            ) {
-                                Color.White
-                            } else {
-                                Color(
-                                    0xFF4A6DA7
-                                )
-                            }
+                        text = horaSeleccionada.ifEmpty { stringResource(R.string.form_select_hour) },
+                        color = Color.White,
+                        fontSize = 14.sp.scaledSp,
+                        fontWeight = FontWeight.Medium.scaledWeight
                     )
+                }
+            }
 
-                    // -------------------------
-                    // ERROR
-                    // -------------------------
+            Spacer(modifier = Modifier.height(16.dp))
 
-                    if (
-                        mensajeError
-                            .isNotEmpty()
-                    ) {
+            // FECHA
+            Text(stringResource(R.string.form_activity_date), fontSize = 14.sp.scaledSp, color = Color.Black, fontWeight = FontWeight.Medium.scaledWeight)
+            Spacer(modifier = Modifier.height(16.dp))
 
-                        Card(
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .border(
-                                        1.dp,
-                                        Color(
-                                            0xFF8B2323
-                                        ),
-                                        RoundedCornerShape(
-                                            12.dp
-                                        )
-                                    ),
+            // MINI CALENDAR
+            MiniCalendar(selectedDate = fechaSeleccionada, onDateSelected = { fechaSeleccionada = it })
 
-                            colors =
-                                CardDefaults
-                                    .cardColors(
-                                        containerColor =
-                                            if (
-                                                Repo.modoOscuro
-                                            ) {
-                                                Color(
-                                                    0xFF4A4A4A
-                                                )
-                                            } else {
-                                                Color(
-                                                    0xFFE2E2E2
-                                                )
-                                            }
-                                    ),
+            Spacer(modifier = Modifier.height(20.dp))
 
-                            shape =
-                                RoundedCornerShape(
-                                    12.dp
-                                )
-                        ) {
-
-                            Row(
-                                modifier =
-                                    Modifier
-                                        .padding(
-                                            horizontal =
-                                                16.dp,
-
-                                            vertical =
-                                                12.dp
-                                        ),
-
-                                verticalAlignment =
-                                    Alignment
-                                        .CenterVertically
-                            ) {
-
-                                Icon(
-                                    imageVector =
-                                        Icons
-                                            .Outlined
-                                            .Info,
-
-                                    contentDescription =
-                                        "Error",
-
-                                    tint =
-                                        Color(
-                                            0xFFC62828
-                                        ),
-
-                                    modifier =
-                                        Modifier
-                                            .size(
-                                                22.dp
-                                            )
-                                )
-
-                                Spacer(
-                                    modifier =
-                                        Modifier
-                                            .width(
-                                                10.dp
-                                            )
-                                )
-
-                                Text(
-                                    text =
-                                        mensajeError,
-
-                                    color =
-                                        if (
-                                            Repo.modoOscuro
-                                        ) {
-                                            Color.White
-                                        } else {
-                                            Color.Black
-                                        },
-
-                                    fontSize =
-                                        14.sp
-                                )
-                            }
-                        }
-                    }
-
-                    // -------------------------
-                    // TÍTULO
-                    // -------------------------
-
-                    Text(
-                        text =
-                            "Ingresa un título *",
-
-                        fontSize =
-                            14.sp,
-
-                        fontWeight =
-                            FontWeight
-                                .SemiBold,
-
-                        color =
-                            if (
-                                Repo.modoOscuro
-                            ) {
-                                Color.White
-                            } else {
-                                Color.Black
-                            }
-                    )
-
-                    OutlinedTextField(
-                        value = tit,
-
-                        onValueChange = {
-
-                            tit = it
-
-                            if (
-                                mensajeError
-                                    .isNotEmpty()
-                            ) {
-                                mensajeError = ""
-                            }
-                        },
-
-                        isError =
-                            titleError,
-
-                        placeholder = {
-                            Text(
-                                "Ej: Ir al gimnasio"
-                            )
-                        },
-
-                        modifier =
-                            Modifier
-                                .fillMaxWidth(),
-
-                        shape =
-                            RoundedCornerShape(
-                                12.dp
-                            ),
-
-                        colors =
-                            OutlinedTextFieldDefaults
-                                .colors(
-
-                                    focusedContainerColor =
-                                        if (
-                                            Repo.modoOscuro
-                                        ) {
-                                            Color(
-                                                0xFF343434
-                                            )
-                                        } else {
-                                            Color(
-                                                0xFFE8E6FF
-                                            )
-                                        },
-
-                                    unfocusedContainerColor =
-                                        if (
-                                            Repo.modoOscuro
-                                        ) {
-                                            Color(
-                                                0xFF343434
-                                            )
-                                        } else {
-                                            Color(
-                                                0xFFE8E6FF
-                                            )
-                                        },
-
-                                    focusedTextColor =
-                                        if (
-                                            Repo.modoOscuro
-                                        ) {
-                                            Color.White
-                                        } else {
-                                            Color.Black
-                                        },
-
-                                    unfocusedTextColor =
-                                        if (
-                                            Repo.modoOscuro
-                                        ) {
-                                            Color.White
-                                        } else {
-                                            Color.Black
-                                        },
-
-                                    errorBorderColor =
-                                        Color.Red
-                                )
-                    )
-
-                    if (titleError) {
-
-                        Text(
-                            text =
-                                "¡Título requerido!",
-
-                            color =
-                                Color.Red,
-
-                            fontSize =
-                                12.sp
-                        )
-                    }
-
-                    // -------------------------
-                    // DESCRIPCIÓN
-                    // -------------------------
-
-                    Text(
-                        text =
-                            "Ingresa una descripción",
-
-                        fontSize =
-                            14.sp,
-
-                        fontWeight =
-                            FontWeight
-                                .SemiBold,
-
-                        color =
-                            if (
-                                Repo.modoOscuro
-                            ) {
-                                Color.White
-                            } else {
-                                Color.Black
-                            }
-                    )
-
-                    OutlinedTextField(
-                        value = des,
-
-                        onValueChange = {
-                            des = it
-                        },
-
-                        placeholder = {
-                            Text(
-                                "Detalles adicionales aquí"
-                            )
-                        },
-
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .height(
-                                    90.dp
-                                ),
-
-                        shape =
-                            RoundedCornerShape(
-                                12.dp
-                            ),
-
-                        colors =
-                            OutlinedTextFieldDefaults
-                                .colors(
-
-                                    focusedContainerColor =
-                                        if (
-                                            Repo.modoOscuro
-                                        ) {
-                                            Color(
-                                                0xFF343434
-                                            )
-                                        } else {
-                                            Color(
-                                                0xFFE8E6FF
-                                            )
-                                        },
-
-                                    unfocusedContainerColor =
-                                        if (
-                                            Repo.modoOscuro
-                                        ) {
-                                            Color(
-                                                0xFF343434
-                                            )
-                                        } else {
-                                            Color(
-                                                0xFFE8E6FF
-                                            )
-                                        },
-
-                                    focusedTextColor =
-                                        if (
-                                            Repo.modoOscuro
-                                        ) {
-                                            Color.White
-                                        } else {
-                                            Color.Black
-                                        },
-
-                                    unfocusedTextColor =
-                                        if (
-                                            Repo.modoOscuro
-                                        ) {
-                                            Color.White
-                                        } else {
-                                            Color.Black
-                                        }
-                                )
-                    )
-
-                    // -------------------------
-                    // HORA
-                    // -------------------------
-
-                    Row(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth(),
-
-                        horizontalArrangement =
-                            Arrangement
-                                .SpaceBetween,
-
-                        verticalAlignment =
-                            Alignment
-                                .CenterVertically
-                    ) {
-
-                        Text(
-                            text =
-                                "Define una hora *:",
-
-                            fontSize =
-                                14.sp,
-
-                            fontWeight =
-                                FontWeight
-                                    .SemiBold,
-
-                            color =
-                                if (
-                                    Repo.modoOscuro
-                                ) {
-                                    Color.White
+            // REPETIR
+            Text(stringResource(R.string.form_repeat), fontSize = 14.sp.scaledSp, color = Color.Black, fontWeight = FontWeight.Medium.scaledWeight)
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                val dias = listOf("Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom")
+                dias.forEach { d ->
+                    val isSelected = repetirSeleccionados.contains(d)
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(if (isSelected) Color.White else Color(0xFF4B6B94))
+                            .border(1.dp, if (isSelected) Color.Black else Color.Transparent, RoundedCornerShape(12.dp))
+                            .clickable {
+                                repetirSeleccionados = if (isSelected) {
+                                    repetirSeleccionados - d
                                 } else {
-                                    Color.Black
-                                }
-                        )
-
-                        Button(
-                            onClick = {
-                                mostrarTimePicker =
-                                    true
-                            },
-
-                            shape =
-                                RoundedCornerShape(
-                                    12.dp
-                                ),
-
-                            colors =
-                                ButtonDefaults
-                                    .buttonColors(
-                                        containerColor =
-                                            Color(
-                                                0xFF5A85B0
-                                            )
-                                    )
-                        ) {
-
-                            Text(
-                                text =
-                                    if (
-                                        horaSeleccionada
-                                            .isEmpty()
-                                    ) {
-                                        "Seleccionar"
-                                    } else {
-                                        horaSeleccionada
-                                    },
-
-                                color =
-                                    Color.White
-                            )
-                        }
-                    }
-
-                    // -------------------------
-                    // FECHA
-                    // -------------------------
-
-                    Row(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth(),
-
-                        horizontalArrangement =
-                            Arrangement
-                                .SpaceBetween,
-
-                        verticalAlignment =
-                            Alignment
-                                .CenterVertically
-                    ) {
-
-                        Text(
-                            text =
-                                "Define una fecha *:",
-
-                            fontSize =
-                                14.sp,
-
-                            fontWeight =
-                                FontWeight
-                                    .SemiBold,
-
-                            color =
-                                if (
-                                    Repo.modoOscuro
-                                ) {
-                                    Color.White
-                                } else {
-                                    Color.Black
-                                }
-                        )
-
-                        Button(
-                            onClick = {
-                                mostrarDatePicker =
-                                    true
-                            },
-
-                            shape =
-                                RoundedCornerShape(
-                                    12.dp
-                                ),
-
-                            colors =
-                                ButtonDefaults
-                                    .buttonColors(
-                                        containerColor =
-                                            Color(
-                                                0xFF5A85B0
-                                            )
-                                    )
-                        ) {
-
-                            val textoFecha =
-                                fechaSeleccionada
-                                    ?.format(
-                                        DateTimeFormatter
-                                            .ofPattern(
-                                                "dd/MM/yyyy"
-                                            )
-                                    )
-                                    ?: "Seleccionar"
-
-                            Text(
-                                text =
-                                    textoFecha,
-
-                                color =
-                                    Color.White
-                            )
-                        }
-                    }
-
-                    // -------------------------
-                    // REPETIR
-                    // -------------------------
-
-                    Text(
-                        text = "Repetir",
-
-                        fontSize = 14.sp,
-
-                        fontWeight =
-                            FontWeight
-                                .SemiBold,
-
-                        color =
-                            if (
-                                Repo.modoOscuro
-                            ) {
-                                Color.White
-                            } else {
-                                Color.Black
-                            }
-                    )
-
-                    Row(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth(),
-
-                        horizontalArrangement =
-                            Arrangement
-                                .spacedBy(
-                                    6.dp
-                                )
-                    ) {
-
-                        listOf(
-                            "Lun",
-                            "Mar",
-                            "Mie",
-                            "Jue",
-                            "Vie",
-                            "Sab",
-                            "Dom"
-                        ).forEach {
-                                opcion ->
-
-                            val estaSeleccionado =
-                                repetirSeleccionados
-                                    .contains(
-                                        opcion
-                                    )
-
-                            Surface(
-                                modifier =
-                                    Modifier
-                                        .clickable {
-
-                                            repetirSeleccionados =
-                                                if (
-                                                    estaSeleccionado
-                                                ) {
-
-                                                    repetirSeleccionados -
-                                                            opcion
-
-                                                } else {
-
-                                                    repetirSeleccionados +
-                                                            opcion
-                                                }
-                                        },
-
-                                shape =
-                                    RoundedCornerShape(
-                                        10.dp
-                                    ),
-
-                                color =
-                                    if (
-                                        estaSeleccionado
-                                    ) {
-
-                                        Color(
-                                            0xFF385A79
-                                        )
-
-                                    } else {
-
-                                        Color(
-                                            0xFF7A9BBF
-                                        )
-                                    }
-                            ) {
-
-                                Text(
-                                    text =
-                                        opcion,
-
-                                    color =
-                                        Color.White,
-
-                                    fontSize =
-                                        11.sp,
-
-                                    fontWeight =
-                                        FontWeight.Bold,
-
-                                    modifier =
-                                        Modifier
-                                            .padding(
-                                                horizontal =
-                                                    8.dp,
-
-                                                vertical =
-                                                    6.dp
-                                            )
-                                )
-                            }
-                        }
-                    }
-
-                    Spacer(
-                        modifier =
-                            Modifier.height(
-                                16.dp
-                            )
-                    )
-
-                    // -------------------------
-                    // CREAR ACTIVIDAD
-                    // -------------------------
-
-                    Button(
-                        onClick = {
-
-                            val hoy =
-                                LocalDate.now()
-
-                            when {
-
-                                tit.isBlank() -> {
-
-                                    mensajeError =
-                                        "Por favor ingresa un título."
-                                }
-
-                                horaSeleccionada
-                                    .isEmpty() -> {
-
-                                    mensajeError =
-                                        "Por favor selecciona una hora."
-                                }
-
-                                fechaSeleccionada ==
-                                        null -> {
-
-                                    mensajeError =
-                                        "Por favor selecciona una fecha."
-                                }
-
-                                fechaSeleccionada
-                                    ?.isBefore(
-                                        hoy
-                                    ) == true -> {
-
-                                    mensajeError =
-                                        "La fecha no puede ser en el pasado."
-                                }
-
-                                else -> {
-
-                                    val repeticionFinal =
-                                        if (
-                                            repetirSeleccionados
-                                                .isEmpty()
-                                        ) {
-
-                                            "No"
-
-                                        } else {
-
-                                            repetirSeleccionados
-                                                .joinToString(
-                                                    ", "
-                                                )
-                                        }
-
-                                    try {
-
-                                        val diasEspanolMap =
-                                            mapOf(
-                                                DayOfWeek.MONDAY to
-                                                        "Lun",
-
-                                                DayOfWeek.TUESDAY to
-                                                        "Mar",
-
-                                                DayOfWeek.WEDNESDAY to
-                                                        "Mie",
-
-                                                DayOfWeek.THURSDAY to
-                                                        "Jue",
-
-                                                DayOfWeek.FRIDAY to
-                                                        "Vie",
-
-                                                DayOfWeek.SATURDAY to
-                                                        "Sab",
-
-                                                DayOfWeek.SUNDAY to
-                                                        "Dom"
-                                            )
-
-                                        val diaDeLaSemana =
-                                            fechaSeleccionada
-                                                ?.let {
-
-                                                    diasEspanolMap[
-                                                        it.dayOfWeek
-                                                    ]
-                                                }
-                                                ?: "Lun"
-
-                                        val nueva =
-                                            Tarea(
-                                                id =
-                                                    Repo
-                                                        .contadorId++,
-
-                                                titulo =
-                                                    tit,
-
-                                                desc =
-                                                    des.ifBlank {
-                                                        null
-                                                    },
-
-                                                hora =
-                                                    horaSeleccionada,
-
-                                                dia =
-                                                    diaDeLaSemana,
-
-                                                repetir =
-                                                    repeticionFinal
-                                            )
-
-                                        viewModel
-                                            .addEvent(
-                                                nueva
-                                            )
-
-                                        onCerrar()
-
-                                    } catch (
-                                        _: Exception
-                                    ) {
-
-                                        mensajeError =
-                                            "Ocurrió un error al guardar."
-                                    }
+                                    repetirSeleccionados + d
                                 }
                             }
-                        },
-
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .height(
-                                    52.dp
-                                ),
-
-                        shape =
-                            RoundedCornerShape(
-                                26.dp
-                            ),
-
-                        colors =
-                            ButtonDefaults
-                                .buttonColors(
-                                    containerColor =
-                                        Color(
-                                            0xFF3B5E8C
-                                        )
-                                )
+                            .padding(horizontal = 8.dp, vertical = 4.dp),
+                        contentAlignment = Alignment.Center
                     ) {
-
-                        Text(
-                            text =
-                                "Crear Actividad",
-
-                            color =
-                                Color.White,
-
-                            fontWeight =
-                                FontWeight.Bold,
-
-                            fontSize =
-                                16.sp
-                        )
+                        Text(d, color = if (isSelected) Color.Black else Color.White, fontSize = 12.sp.scaledSp)
                     }
                 }
             }
 
-            // -------------------------
-            // VOLVER
-            // -------------------------
+            Spacer(modifier = Modifier.height(20.dp))
 
-            IconButton(
-                onClick = {
-                    onCerrar()
-                },
-
-                modifier =
-                    Modifier
-                        .align(
-                            Alignment.BottomEnd
-                        )
-                        .padding(
-                            16.dp
-                        )
-                        .background(
-                            Color(
-                                0xFF4A6DA7
-                            ),
-                            CircleShape
-                        )
-            ) {
-
-                Icon(
-                    painter =
-                        painterResource(
-                            id =
-                                android.R
-                                    .drawable
-                                    .ic_menu_revert
-                        ),
-
-                    contentDescription =
-                        "Volver",
-
-                    tint =
-                        Color.White
-                )
+            // PRIORIZAR
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(R.string.form_prioritize), fontSize = 14.sp.scaledSp, color = Color.Black, fontWeight = FontWeight.Medium.scaledWeight)
+                Spacer(modifier = Modifier.width(16.dp))
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(if (priorizar) Color(0xFF4B6B94) else Color.Gray)
+                        .clickable { priorizar = !priorizar }
+                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("SI", color = Color.White, fontSize = 12.sp.scaledSp)
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Icon(Icons.Filled.StarBorder, contentDescription = "Star", tint = Color(0xFF4B6B94))
             }
+
+            Spacer(modifier = Modifier.height(30.dp))
+
+            if (mensajeError.isNotEmpty()) {
+                Text(mensajeError, color = Color.Red, fontSize = 14.sp.scaledSp, modifier = Modifier.padding(bottom = 8.dp))
+            }
+
+            // CREAR ACTIVIDAD BUTTON
+            Button(
+                onClick = {
+                    when {
+                        tit.isBlank() -> {
+                            mensajeError = context.getString(R.string.error_title_required)
+                        }
+                        horaSeleccionada.isEmpty() -> {
+                            mensajeError = context.getString(R.string.error_hour_required)
+                        }
+                        fechaSeleccionada == null -> {
+                            mensajeError = context.getString(R.string.error_date_required)
+                        }
+                        fechaSeleccionada!!.isBefore(LocalDate.now()) -> {
+                            mensajeError = context.getString(R.string.error_date_past)
+                        }
+                        else -> {
+                            val diaSemana = fechaSeleccionada?.let {
+                                listOf("Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom")[it.dayOfWeek.value - 1]
+                            } ?: "Lun"
+                            val repStr = if (repetirSeleccionados.isEmpty()) "No" else repetirSeleccionados.joinToString(", ")
+                            val fechaStr = fechaSeleccionada?.toString() ?: ""
+                            val t = Tarea(
+                                titulo = tit,
+                                desc = des.ifBlank { null },
+                                hora = horaSeleccionada,
+                                dia = diaSemana,
+                                fecha = fechaStr,
+                                repetir = repStr,
+                                esAnclada = priorizar
+                            )
+                            viewModel.addEvent(t)
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            onCerrar()
+                        }
+                    }
+                },
+                modifier = Modifier.fillMaxWidth().height(52.dp),
+                shape = RoundedCornerShape(26.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B6B94))
+            ) {
+                Text(stringResource(R.string.form_create_button), color = Color.White, fontSize = 16.sp.scaledSp, fontWeight = FontWeight.Bold.scaledWeight)
+            }
+        }
+
+        // BACK BUTTON
+        IconButton(
+            onClick = { onCerrar() },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .offset(y = 20.dp, x = 10.dp)
+                .background(Color(0xFF4A6DA7), CircleShape)
+        ) {
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver", tint = Color.White)
+        }
+    }
+}
+
+@Composable
+fun MiniCalendar(selectedDate: LocalDate?, onDateSelected: (LocalDate) -> Unit) {
+    val yearMonth = YearMonth.now()
+    val nombreMes = yearMonth.month.getDisplayName(TextStyle.FULL, Locale.forLanguageTag("es")).replaceFirstChar { it.uppercase() }
+
+    Box(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+        Column {
+            // TABS (Bubbles)
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                listOf("Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom").forEach { dia ->
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = 2.dp)
+                            .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
+                            .background(Color(0xFF4B6B94))
+                            .padding(vertical = 4.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(dia, color = Color.White, fontSize = 12.sp.scaledSp)
+                    }
+                }
+            }
+
+            // GRID CONTAINER
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .offset(y = (-2).dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xFF8BB5CE))
+                    .padding(4.dp)
+            ) {
+                val firstDayOfWeek = yearMonth.atDay(1).dayOfWeek.value
+                val startOffset = firstDayOfWeek - 1
+                val daysInMonth = yearMonth.lengthOfMonth()
+                val totalCells = 35
+
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(7),
+                    verticalArrangement = Arrangement.spacedBy(2.dp),
+                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                    userScrollEnabled = false,
+                    modifier = Modifier.height(180.dp)
+                ) {
+                    items(totalCells) { index ->
+                        val isCurrentMonth = index in startOffset until (startOffset + daysInMonth)
+                        val dayNumber = if (isCurrentMonth) index - startOffset + 1 else -1
+
+                        val isSelected = isCurrentMonth && selectedDate?.dayOfMonth == dayNumber && selectedDate?.year == yearMonth.year && selectedDate?.month == yearMonth.month
+
+                        val bgColor = if (isSelected) Color(0xFF4B6B94) else if (isCurrentMonth) if (com.example.actividad2_ddam.model.Repo.modoOscuro) Color(0xFF202020) else Color(0xFFF3EDF7) else Color(0xFF90A5B8)
+                        val txtColor = if (isSelected) Color.White else Color.Black
+
+                        Box(
+                            modifier = Modifier
+                                .aspectRatio(1f)
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(bgColor)
+                                .clickable(enabled = isCurrentMonth) {
+                                    if (isCurrentMonth) {
+                                        onDateSelected(yearMonth.atDay(dayNumber))
+                                    }
+                                }
+                                .padding(4.dp)
+                        ) {
+                            if (dayNumber > 0) {
+                                Text(dayNumber.toString(), color = txtColor, fontSize = 12.sp.scaledSp)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // MONTH BADGE
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .offset(y = 12.dp, x = (-16).dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(Color(0xFF4B6B94))
+                .padding(horizontal = 16.dp, vertical = 6.dp)
+        ) {
+            Text(nombreMes, color = Color.White, fontSize = 12.sp.scaledSp, fontWeight = FontWeight.Bold.scaledWeight)
         }
     }
 }

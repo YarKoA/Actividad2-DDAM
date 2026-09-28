@@ -1,4 +1,16 @@
-package com.example.actividad2_ddam.navigation
+import re
+
+filepath = r'C:\Users\anvaq\Downloads\Actividad2-DDAM\app\src\main\java\com\example\actividad2_ddam\navigation\AppNavigation.kt'
+with open(filepath, 'r', encoding='utf-8') as f:
+    content = f.read()
+
+# Make sure imports are present
+imports_to_add = "import androidx.compose.animation.scaleIn\nimport androidx.compose.animation.scaleOut\nimport androidx.compose.animation.core.FastOutSlowInEasing\n"
+if "scaleIn" not in content:
+    content = re.sub(r'(import [^\n]+\n)(?!.*import )', r'\1' + imports_to_add, content, count=1, flags=re.DOTALL)
+
+# Let's just define the new content for AppNavigation entirely, it's safer and cleaner.
+new_nav = '''package com.example.actividad2_ddam.navigation
 
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.fadeIn
@@ -95,7 +107,7 @@ fun AppNavigation(
                 onRegistered = {
                     navController.popBackStack()
                 },
-                onBackToLogin = {
+                onGoToLogin = {
                     navController.navigate(Routes.LOGIN) {
                         popUpTo(Routes.LOGIN) { inclusive = true }
                     }
@@ -144,3 +156,8 @@ fun AppNavigation(
         }
     }
 }
+'''
+
+with open(filepath, 'w', encoding='utf-8') as f:
+    f.write(new_nav)
+print("Updated AppNavigation.kt with scale/fade animations")
