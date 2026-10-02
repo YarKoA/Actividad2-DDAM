@@ -18,6 +18,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.actividad2_ddam.viewmodel.SettingsViewModel
 import androidx.navigation.NavController
 import com.example.actividad2_ddam.R
 import com.example.actividad2_ddam.model.Repo
@@ -31,7 +33,8 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 @Composable
 fun SettingsScreen(
     navController: NavController,
-    onCerrarSesion: () -> Unit = {}
+    onCerrarSesion: () -> Unit = {},
+    vm: SettingsViewModel = hiltViewModel()
 ) {
     val ctx = LocalContext.current
     var showLogoutDialog by remember { mutableStateOf(false) }
@@ -128,7 +131,7 @@ fun SettingsScreen(
                             Text(stringResource(R.string.settings_dark_mode), fontSize = 16.sp.scaledSp, color = if (Repo.modoOscuro) Color.White else Color.Black, modifier = Modifier.weight(1f))
                             Switch(
                                 checked = Repo.modoOscuro,
-                                onCheckedChange = { Repo.modoOscuro = it },
+                                onCheckedChange = { Repo.modoOscuro = it; vm.setModoOscuro(it) },
                                 colors = SwitchDefaults.colors(
                                     checkedThumbColor = Color(0xFFEDE2FF), checkedTrackColor = Color(0xFF5A75A7),
                                     uncheckedThumbColor = Color(0xFF5A75A7), uncheckedTrackColor = Color(0xFFEDE2FF), uncheckedBorderColor = Color.LightGray
@@ -145,7 +148,7 @@ fun SettingsScreen(
                             Text(stringResource(R.string.settings_typography), fontSize = 16.sp.scaledSp, color = if (Repo.modoOscuro) Color.White else Color.Black, modifier = Modifier.weight(1f))
                             Switch(
                                 checked = Repo.letraGrande,
-                                onCheckedChange = { Repo.letraGrande = it },
+                                onCheckedChange = { Repo.letraGrande = it; vm.setLetraGrande(it) },
                                 colors = SwitchDefaults.colors(
                                     checkedThumbColor = Color(0xFFEDE2FF), checkedTrackColor = Color(0xFF5A75A7),
                                     uncheckedThumbColor = Color(0xFF5A75A7), uncheckedTrackColor = Color(0xFFEDE2FF), uncheckedBorderColor = Color.LightGray
@@ -162,7 +165,7 @@ fun SettingsScreen(
                             Text(stringResource(R.string.settings_font_weight), fontSize = 16.sp.scaledSp, color = if (Repo.modoOscuro) Color.White else Color.Black, modifier = Modifier.weight(1f))
                             Switch(
                                 checked = Repo.grosorGrueso,
-                                onCheckedChange = { Repo.grosorGrueso = it },
+                                onCheckedChange = { Repo.grosorGrueso = it; vm.setGrosorGrueso(it) },
                                 colors = SwitchDefaults.colors(
                                     checkedThumbColor = Color(0xFFEDE2FF), checkedTrackColor = Color(0xFF5A75A7),
                                     uncheckedThumbColor = Color(0xFF5A75A7), uncheckedTrackColor = Color(0xFFEDE2FF), uncheckedBorderColor = Color.LightGray

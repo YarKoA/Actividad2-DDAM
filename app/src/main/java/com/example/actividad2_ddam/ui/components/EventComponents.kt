@@ -438,31 +438,40 @@ fun SwipeableEventCard(
     onAlarmaClick: () -> Unit = {}
 ) {
 
-        var showDeleteDialog by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
     val haptic = LocalHapticFeedback.current
     val scope = rememberCoroutineScope()
-    val dismissState = rememberSwipeToDismissBoxState(
-        confirmValueChange = { dismissValue ->
-            if (dismissValue == SwipeToDismissBoxValue.EndToStart || dismissValue == SwipeToDismissBoxValue.StartToEnd) {
+    
+    val dismissState = rememberSwipeToDismissBoxState()
+
+    LaunchedEffect(dismissState.currentValue) {
+        if (dismissState.currentValue == SwipeToDismissBoxValue.EndToStart || 
+            dismissState.currentValue == SwipeToDismissBoxValue.StartToEnd) {
+            if (!showDeleteDialog) {
                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                 showDeleteDialog = true
-                true // Keep it dismissed while asking
-            } else {
-                false
             }
         }
-    )
+    }
+
+    var isDeleting by remember { mutableStateOf(false) }
+
+    LaunchedEffect(showDeleteDialog) {
+        if (!showDeleteDialog && !isDeleting && dismissState.currentValue != SwipeToDismissBoxValue.Settled) {
+            dismissState.reset()
+        }
+    }
 
     if (showDeleteDialog) {
         androidx.compose.material3.AlertDialog(
             onDismissRequest = { 
                 showDeleteDialog = false
-                scope.launch { dismissState.reset() }
             },
             title = { androidx.compose.material3.Text("Borrar Tarea") },
             text = { androidx.compose.material3.Text("Estas seguro de que deseas eliminar esta tarea?") },
             confirmButton = {
                 androidx.compose.material3.TextButton(onClick = { 
+                    isDeleting = true
                     showDeleteDialog = false
                     onDelete() 
                 }) {
@@ -472,7 +481,6 @@ fun SwipeableEventCard(
             dismissButton = {
                 androidx.compose.material3.TextButton(onClick = { 
                     showDeleteDialog = false
-                    scope.launch { dismissState.reset() }
                 }) {
                     androidx.compose.material3.Text("Cancelar")
                 }

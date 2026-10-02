@@ -61,6 +61,7 @@ dependencies {
     implementation(libs.navigation.compose)
 
     implementation(libs.lottie.compose)
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
 
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
