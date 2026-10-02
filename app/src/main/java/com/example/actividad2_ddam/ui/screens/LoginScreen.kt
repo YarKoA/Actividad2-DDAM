@@ -257,9 +257,11 @@ fun LoginScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // GOOGLE
+                // GOOGLE
                 Button(
                     onClick = {
-                        Toast.makeText(context, "Funcionalidad no disponible", Toast.LENGTH_SHORT).show()
+                        // Reemplazamos el Toast por la llamada a tu ViewModel
+                        vm.signInWithGoogle(context)
                     },
                     modifier = Modifier
                         .fillMaxWidth()
