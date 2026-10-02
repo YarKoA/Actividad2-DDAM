@@ -42,6 +42,10 @@ import java.time.format.TextStyle
 import java.util.Locale
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import com.example.actividad2_ddam.ui.theme.scaledSp
+import com.example.actividad2_ddam.ui.theme.scaledWeight
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 
 @Composable
 fun EventCard(
@@ -163,9 +167,9 @@ fun EventCard(
 
                     Text(
                         text = "📌 Tarea importante",
-                        fontSize = 12.sp,
+                        fontSize = 12.sp.scaledSp,
                         fontWeight =
-                            FontWeight.Bold,
+                            FontWeight.Bold.scaledWeight,
                         color =
                             Color(0xFF3B5E8C)
                     )
@@ -186,8 +190,8 @@ fun EventCard(
                 Text(
                     text = event.titulo,
                     fontWeight =
-                        FontWeight.Bold,
-                    fontSize = 15.sp,
+                        FontWeight.Bold.scaledWeight,
+                    fontSize = 15.sp.scaledSp,
 
                     color =
                         if (Repo.modoOscuro) {
@@ -204,7 +208,7 @@ fun EventCard(
 
                     Text(
                         text = event.hora,
-                        fontSize = 12.sp,
+                        fontSize = 12.sp.scaledSp,
 
                         color =
                             if (Repo.modoOscuro) {
@@ -269,7 +273,7 @@ fun EventCard(
                         event.desc
                             ?: "Sin detalles adicionales",
 
-                    fontSize = 13.sp,
+                    fontSize = 13.sp.scaledSp,
 
                     color =
                         if (Repo.modoOscuro) {
@@ -296,7 +300,7 @@ fun EventCard(
                     text =
                         "Duración aprox: 60 min",
 
-                    fontSize = 12.sp,
+                    fontSize = 12.sp.scaledSp,
 
                     color =
                         if (Repo.modoOscuro) {
@@ -318,7 +322,7 @@ fun EventCard(
                         text =
                             "$diaTexto · $mesActual",
 
-                        fontSize = 10.sp,
+                        fontSize = 10.sp.scaledSp,
 
                         color =
                             if (Repo.modoOscuro) {
@@ -342,7 +346,7 @@ fun EventCard(
                             "Activar alarma",
 
                         modifier = Modifier
-                            .size(24.dp)
+                            .size(40.dp)
                             .scale(escalaAlarma)
                             .clickable(
                                 interactionSource =
@@ -386,7 +390,7 @@ fun EventCard(
                             "Editar actividad",
 
                         modifier = Modifier
-                            .size(24.dp)
+                            .size(40.dp)
                             .scale(escalaEditar)
                             .clickable(
                                 interactionSource =
@@ -434,32 +438,47 @@ fun SwipeableEventCard(
     onAlarmaClick: () -> Unit = {}
 ) {
 
-    val dismissState =
-        rememberSwipeToDismissBoxState(
+        var showDeleteDialog by remember { mutableStateOf(false) }
+    val haptic = LocalHapticFeedback.current
+    val scope = rememberCoroutineScope()
+    val dismissState = rememberSwipeToDismissBoxState(
+        confirmValueChange = { dismissValue ->
+            if (dismissValue == SwipeToDismissBoxValue.EndToStart || dismissValue == SwipeToDismissBoxValue.StartToEnd) {
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                showDeleteDialog = true
+                true // Keep it dismissed while asking
+            } else {
+                false
+            }
+        }
+    )
 
-            confirmValueChange = {
-                    dismissValue ->
-
-                if (
-                    dismissValue ==
-                    SwipeToDismissBoxValue
-                        .EndToStart
-                    ||
-                    dismissValue ==
-                    SwipeToDismissBoxValue
-                        .StartToEnd
-                ) {
-
-                    onDelete()
-
-                    true
-
-                } else {
-
-                    false
+    if (showDeleteDialog) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { 
+                showDeleteDialog = false
+                scope.launch { dismissState.reset() }
+            },
+            title = { androidx.compose.material3.Text("Borrar Tarea") },
+            text = { androidx.compose.material3.Text("Estas seguro de que deseas eliminar esta tarea?") },
+            confirmButton = {
+                androidx.compose.material3.TextButton(onClick = { 
+                    showDeleteDialog = false
+                    onDelete() 
+                }) {
+                    androidx.compose.material3.Text("Borrar", color = Color.Red)
+                }
+            },
+            dismissButton = {
+                androidx.compose.material3.TextButton(onClick = { 
+                    showDeleteDialog = false
+                    scope.launch { dismissState.reset() }
+                }) {
+                    androidx.compose.material3.Text("Cancelar")
                 }
             }
         )
+    }
 
     SwipeToDismissBox(
         state = dismissState,
@@ -494,7 +513,7 @@ fun SwipeableEventCard(
                         Color.White,
 
                     fontWeight =
-                        FontWeight.Bold
+                        FontWeight.Bold.scaledWeight
                 )
             }
         }
@@ -518,185 +537,83 @@ fun BottomNavBar(
     navController: NavController,
     currentScreen: String
 ) {
-
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(100.dp),
-
-        contentAlignment =
-            Alignment.BottomCenter
+            .height(110.dp),
+        contentAlignment = Alignment.BottomCenter
     ) {
-
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(80.dp),
-
-            color =
-                if (Repo.modoOscuro) {
-                    Color(0xFF202020)
-                } else {
-                    Color(0xFFF1EFFE)
-                },
-
-            shape =
-                RoundedCornerShape(
-                    topStart = 32.dp,
-                    topEnd = 32.dp
-                ),
-
+            color = if (Repo.modoOscuro) Color(0xFF202020) else Color(0xFFF1EFFE),
+            shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
             shadowElevation = 12.dp
         ) {
-
             Box(
-                modifier =
-                    Modifier.fillMaxSize(),
-
-                contentAlignment =
-                    Alignment.BottomCenter
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.BottomCenter
             ) {
-
                 Box(
                     modifier = Modifier
-                        .padding(
-                            bottom = 8.dp
-                        )
+                        .padding(bottom = 8.dp)
                         .width(130.dp)
                         .height(4.dp)
                         .background(
-                            color =
-                                if (
-                                    Repo.modoOscuro
-                                ) {
-                                    Color.LightGray
-                                } else {
-                                    Color.Black
-                                },
-
-                            shape =
-                                CircleShape
+                            if (Repo.modoOscuro) Color.Gray else Color.Black,
+                            CircleShape
                         )
                 )
             }
         }
-
+        
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(100.dp)
-                .padding(
-                    start = 24.dp,
-                    end = 24.dp,
-                    bottom = 14.dp
-                ),
-
-            horizontalArrangement =
-                Arrangement.spacedBy(16.dp),
-
-            verticalAlignment =
-                Alignment.Bottom
+                .padding(start = 32.dp, bottom = 20.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.Bottom
         ) {
-
             NavItemButton(
-                icon =
-                    Icons.Default.Home,
-
+                icon = Icons.Default.Home,
                 label = "HOME",
-
-                isActive =
-                    currentScreen ==
-                            Routes.EVENT_LIST,
-
+                isActive = currentScreen == Routes.EVENT_LIST,
                 onClick = {
-
-                    if (
-                        currentScreen !=
-                        Routes.EVENT_LIST
-                    ) {
-
-                        navController.navigate(
-                            Routes.EVENT_LIST
-                        ) {
-
-                            popUpTo(
-                                Routes.EVENT_LIST
-                            ) {
-                                saveState = true
-                            }
-
+                    if (currentScreen != Routes.EVENT_LIST) {
+                        navController.navigate(Routes.EVENT_LIST) {
+                            popUpTo(Routes.EVENT_LIST) { saveState = true }
                             launchSingleTop = true
-
                             restoreState = true
                         }
                     }
                 }
             )
-
+            
             NavItemButton(
-                icon =
-                    Icons.Default.DateRange,
-
-                label = "CALEND",
-
-                isActive =
-                    currentScreen ==
-                            Routes.CALENDAR,
-
+                icon = Icons.Default.DateRange,
+                label = "CALENDARIO",
+                isActive = currentScreen == Routes.CALENDAR,
                 onClick = {
-
-                    if (
-                        currentScreen !=
-                        Routes.CALENDAR
-                    ) {
-
-                        navController.navigate(
-                            Routes.CALENDAR
-                        ) {
-
-                            popUpTo(
-                                Routes.EVENT_LIST
-                            ) {
-                                saveState = true
-                            }
-
+                    if (currentScreen != Routes.CALENDAR) {
+                        navController.navigate(Routes.CALENDAR) {
+                            popUpTo(Routes.EVENT_LIST) { saveState = true }
                             launchSingleTop = true
-
                             restoreState = true
                         }
                     }
                 }
             )
-
+            
             NavItemButton(
-                icon =
-                    Icons.Default.Settings,
-
-                label = "CONFIG",
-
-                isActive =
-                    currentScreen ==
-                            Routes.SETTINGS,
-
+                icon = Icons.Default.Settings,
+                label = "AJUSTES",
+                isActive = currentScreen == Routes.SETTINGS,
                 onClick = {
-
-                    if (
-                        currentScreen !=
-                        Routes.SETTINGS
-                    ) {
-
-                        navController.navigate(
-                            Routes.SETTINGS
-                        ) {
-
-                            popUpTo(
-                                Routes.EVENT_LIST
-                            ) {
-                                saveState = true
-                            }
-
+                    if (currentScreen != Routes.SETTINGS) {
+                        navController.navigate(Routes.SETTINGS) {
+                            popUpTo(Routes.EVENT_LIST) { saveState = true }
                             launchSingleTop = true
-
                             restoreState = true
                         }
                     }
@@ -713,169 +630,40 @@ private fun NavItemButton(
     isActive: Boolean,
     onClick: () -> Unit
 ) {
-
-    val size by animateDpAsState(
-        targetValue =
-            if (isActive) {
-                72.dp
-            } else {
-                54.dp
-            },
-
-        animationSpec =
-            tween(
-                durationMillis = 200
-            ),
-
-        label = "sizeAnimation"
-    )
-
-    val offsetY by animateDpAsState(
-        targetValue =
-            if (isActive) {
-                (-20).dp
-            } else {
-                0.dp
-            },
-
-        animationSpec =
-            tween(
-                durationMillis = 200
-            ),
-
-        label = "offsetAnimation"
-    )
-
-    val backgroundColor
-            by animateColorAsState(
-
-                targetValue =
-                    if (isActive) {
-                        Color(0xFFAAD9E8)
-                    } else {
-                        Color(0xFF385A79)
-                    },
-
-                animationSpec =
-                    tween(
-                        durationMillis = 200
-                    ),
-
-                label =
-                    "backgroundAnimation"
-            )
-
-    val iconTint
-            by animateColorAsState(
-
-                targetValue =
-                    if (isActive) {
-                        Color(0xFF385A79)
-                    } else {
-                        Color.White
-                    },
-
-                animationSpec =
-                    tween(
-                        durationMillis = 200
-                    ),
-
-                label =
-                    "iconAnimation"
-            )
-
-    Surface(
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .offset(y = offsetY)
-            .size(size)
+            .offset(y = (-30).dp)
             .clickable(
-                interactionSource =
-                    remember {
-                        MutableInteractionSource()
-                    },
-
-                indication = null
-            ) {
-                onClick()
-            },
-
-        shape = CircleShape,
-
-        color = backgroundColor,
-
-        shadowElevation =
-            if (isActive) {
-                10.dp
-            } else {
-                2.dp
-            },
-
-        border =
-            if (isActive) {
-
-                BorderStroke(
-                    2.dp,
-                    Color.White
-                )
-
-            } else {
-
-                null
-            }
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick
+            )
     ) {
-
-        Box(
-            contentAlignment =
-                Alignment.Center
+        Surface(
+            shape = CircleShape,
+            color = if (isActive) Color(0xFFC4E4F4) else Color(0xFF384F66),
+            border = BorderStroke(2.dp, if (isActive) Color.White else Color.Transparent),
+            modifier = Modifier.size(64.dp),
+            shadowElevation = 4.dp
         ) {
-
             Column(
-                horizontalAlignment =
-                    Alignment.CenterHorizontally,
-
-                verticalArrangement =
-                    Arrangement.Center
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-
                 Icon(
                     imageVector = icon,
-
-                    contentDescription =
-                        label,
-
-                    tint = iconTint,
-
-                    modifier =
-                        Modifier.size(
-                            if (isActive) {
-                                32.dp
-                            } else {
-                                28.dp
-                            }
-                        )
+                    contentDescription = label,
+                    modifier = Modifier.size(if (isActive) 24.dp else 28.dp),
+                    tint = if (isActive) Color(0xFF384F66) else Color.White
                 )
-
                 if (isActive) {
-
-                    Spacer(
-                        modifier =
-                            Modifier.height(
-                                1.dp
-                            )
-                    )
-
                     Text(
                         text = label,
-
-                        fontSize = 10.sp,
-
-                        fontWeight =
-                            FontWeight.Bold,
-
-                        color =
-                            Color(
-                                0xFF385A79
-                            )
+                        fontSize = 10.sp.scaledSp,
+                        fontWeight = FontWeight.Bold.scaledWeight,
+                        color = Color(0xFF384F66)
                     )
                 }
             }

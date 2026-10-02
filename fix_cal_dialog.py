@@ -1,4 +1,7 @@
-package com.example.actividad2_ddam.ui.screens
+﻿import re
+file_path = r'C:\Users\anvaq\Downloads\Actividad2-DDAM\app\src\main\java\com\example\actividad2_ddam\ui\screens\CalendarScreen.kt'
+
+content = '''package com.example.actividad2_ddam.ui.screens
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -21,7 +24,6 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -29,22 +31,18 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.actividad2_ddam.R
 import com.example.actividad2_ddam.navigation.Routes
 import com.example.actividad2_ddam.ui.components.BottomNavBar
 import com.example.actividad2_ddam.viewmodel.EventViewModel
-import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.Locale
-import com.example.actividad2_ddam.ui.theme.scaledSp
-import com.example.actividad2_ddam.ui.theme.scaledWeight
 
 @Composable
 fun CalendarScreen(navController: NavController, viewModel: EventViewModel = hiltViewModel()) {
     var yearMonth by remember { mutableStateOf(YearMonth.now()) }
     var selectedDayAction by remember { mutableStateOf<Int?>(null) }
-
+    
     val todasLasTareas by viewModel.todasLasTareas.collectAsState(initial = emptyList())
     val context = LocalContext.current
 
@@ -59,12 +57,12 @@ fun CalendarScreen(navController: NavController, viewModel: EventViewModel = hil
                 .padding(top = 40.dp),
             horizontalAlignment = Alignment.Start
         ) {
-
-            // TITULO MES
+            
+            // TITULO ENERO
             Text(
                 text = nombreMes,
-                fontSize = 32.sp.scaledSp,
-                fontWeight = FontWeight.Bold.scaledWeight,
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold,
                 color = Color.White
             )
 
@@ -89,15 +87,15 @@ fun CalendarScreen(navController: NavController, viewModel: EventViewModel = hil
                         listOf("D", "L", "m", "m", "J", "V", "S").forEach { dia ->
                             Text(
                                 text = dia,
-                                fontWeight = FontWeight.Bold.scaledWeight,
+                                fontWeight = FontWeight.Bold,
                                 color = Color.White,
-                                fontSize = 16.sp.scaledSp,
+                                fontSize = 16.sp,
                                 modifier = Modifier.weight(1f),
                                 textAlign = TextAlign.Center
                             )
                         }
                     }
-
+                    
                     HorizontalDivider(color = Color.White, thickness = 2.dp)
                     Spacer(modifier = Modifier.height(4.dp))
 
@@ -105,10 +103,10 @@ fun CalendarScreen(navController: NavController, viewModel: EventViewModel = hil
                     val firstDayOfWeek = yearMonth.atDay(1).dayOfWeek.value
                     val startOffset = if (firstDayOfWeek == 7) 0 else firstDayOfWeek
                     val daysInMonth = yearMonth.lengthOfMonth()
-
+                    
                     val prevMonth = yearMonth.minusMonths(1)
                     val daysInPrevMonth = prevMonth.lengthOfMonth()
-
+                    
                     val totalCells = 42
 
                     LazyVerticalGrid(
@@ -125,10 +123,10 @@ fun CalendarScreen(navController: NavController, viewModel: EventViewModel = hil
                                 isCurrentMonth -> index - startOffset + 1
                                 else -> index - startOffset - daysInMonth + 1
                             }
-
-                            val bgColor = if (isCurrentMonth) if (com.example.actividad2_ddam.model.Repo.modoOscuro) Color(0xFF343434) else Color(0xFFEFEAFA) else Color(0xFF5C88AA)
-                            val txtColor = if (isCurrentMonth) (if (com.example.actividad2_ddam.model.Repo.modoOscuro) Color.White else Color.Black) else Color.LightGray
-
+                            
+                            val bgColor = if (isCurrentMonth) Color(0xFFEFEAFA) else Color(0xFF5C88AA)
+                            val txtColor = if (isCurrentMonth) Color.Black else Color.White
+                            
                             Box(
                                 modifier = Modifier
                                     .aspectRatio(0.75f)
@@ -142,14 +140,15 @@ fun CalendarScreen(navController: NavController, viewModel: EventViewModel = hil
                                 Text(
                                     text = dayNumber.toString(),
                                     color = txtColor,
-                                    fontSize = 14.sp.scaledSp
+                                    fontSize = 14.sp
                                 )
-
-                                // EVENT BADGE - now uses real fecha field
+                                
+                                // EVENT BADGE 
                                 if (isCurrentMonth) {
-                                    val dateStr = yearMonth.atDay(dayNumber).toString()
-                                    val count = todasLasTareas.count { it.fecha == dateStr }
-
+                                    val dateObj = yearMonth.atDay(dayNumber)
+                                    val diaSemana = listOf("Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom")[dateObj.dayOfWeek.value - 1]
+                                    val count = todasLasTareas.count { it.dia == diaSemana }
+                                    
                                     if (count > 0) {
                                         Box(
                                             modifier = Modifier
@@ -160,7 +159,7 @@ fun CalendarScreen(navController: NavController, viewModel: EventViewModel = hil
                                                 .background(Color(0xFF3B5E8C)),
                                             contentAlignment = Alignment.Center
                                         ) {
-                                            Text(count.toString(), color = Color.White, fontSize = 10.sp.scaledSp, fontWeight = FontWeight.Bold.scaledWeight)
+                                            Text(count.toString(), color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                                         }
                                     }
                                 }
@@ -174,7 +173,7 @@ fun CalendarScreen(navController: NavController, viewModel: EventViewModel = hil
         Box(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth()) {
             BottomNavBar(navController = navController, currentScreen = Routes.CALENDAR)
         }
-
+        
         // DIALOGO MODIFICAR
         if (selectedDayAction != null) {
             Dialog(onDismissRequest = { selectedDayAction = null }) {
@@ -182,7 +181,7 @@ fun CalendarScreen(navController: NavController, viewModel: EventViewModel = hil
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(16.dp))
-                        .background(if (com.example.actividad2_ddam.model.Repo.modoOscuro) Color(0xFF202020) else Color(0xFFF3EDF7))
+                        .background(Color(0xFFF3EDF7))
                         .padding(20.dp)
                 ) {
                     // Close button
@@ -192,26 +191,26 @@ fun CalendarScreen(navController: NavController, viewModel: EventViewModel = hil
                     ) {
                         Icon(Icons.Filled.Close, contentDescription = "Cerrar", tint = Color(0xFF33436F))
                     }
-
+                    
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = stringResource(R.string.calendar_modify),
+                            text = "Modificar:",
                             color = Color.Black,
-                            fontSize = 16.sp.scaledSp,
-                            fontWeight = FontWeight.Medium.scaledWeight,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
                             modifier = Modifier.align(Alignment.Start)
                         )
-
+                        
                         Spacer(modifier = Modifier.height(24.dp))
-
+                        
                         // MARCAR BUTTON
                         Button(
-                            onClick = {
+                            onClick = { 
                                 selectedDayAction = null
-                                Toast.makeText(context, context.getString(R.string.calendar_day_marked), Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Día marcado", Toast.LENGTH_SHORT).show()
                             },
                             modifier = Modifier
                                 .fillMaxWidth(0.8f)
@@ -222,14 +221,14 @@ fun CalendarScreen(navController: NavController, viewModel: EventViewModel = hil
                         ) {
                             Icon(Icons.Filled.BookmarkBorder, contentDescription = "Marcar", tint = Color.White)
                             Spacer(modifier = Modifier.width(12.dp))
-                            Text(stringResource(R.string.calendar_mark), color = Color.White, fontSize = 14.sp.scaledSp, fontWeight = FontWeight.Medium.scaledWeight)
+                            Text("MARCAR", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium)
                         }
-
+                        
                         Spacer(modifier = Modifier.height(24.dp))
-
+                        
                         // AÑADIR ACTIVIDAD BUTTON
                         Button(
-                            onClick = {
+                            onClick = { 
                                 selectedDayAction = null
                                 navController.navigate(Routes.EVENT_FORM)
                             },
@@ -242,9 +241,9 @@ fun CalendarScreen(navController: NavController, viewModel: EventViewModel = hil
                         ) {
                             Icon(Icons.Filled.Add, contentDescription = "Añadir", tint = Color.White)
                             Spacer(modifier = Modifier.width(12.dp))
-                            Text(stringResource(R.string.calendar_add_activity), color = Color.White, fontSize = 12.sp.scaledSp, fontWeight = FontWeight.Medium.scaledWeight, textAlign = TextAlign.Center)
+                            Text("AÑADIR ACTIVIDAD", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Medium, textAlign = TextAlign.Center)
                         }
-
+                        
                         Spacer(modifier = Modifier.height(16.dp))
                     }
                 }
@@ -252,3 +251,6 @@ fun CalendarScreen(navController: NavController, viewModel: EventViewModel = hil
         }
     }
 }
+'''
+with open(file_path, 'w', encoding='utf-8') as f:
+    f.write(content)

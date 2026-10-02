@@ -1,3 +1,72 @@
 <resources>
     <string name="app_name">Actividad 2 - DDAM</string>
+    <string name="email">Correo electrónico</string>
+    <string name="password">Contraseña</string>
+    <string name="login">Iniciar Sesión</string>
+    <string name="create_account">Crear Cuenta</string>
+    <string name="name">Nombre completo</string>
+    <string name="phone">Teléfono</string>
+    <string name="age">Edad</string>
+
+    <!-- EventFormScreen -->
+    <string name="form_title">Añadir actividad</string>
+    <string name="form_enter_title">Ingresa un título *</string>
+    <string name="form_enter_desc">Ingresa una descripción</string>
+    <string name="form_hour">Hora:</string>
+    <string name="form_select_hour">Seleccionar hora</string>
+    <string name="form_activity_date">Fecha de la actividad:</string>
+    <string name="form_repeat">Repetir:</string>
+    <string name="form_prioritize">Priorizar:</string>
+    <string name="form_create_button">Crear Actividad</string>
+
+    <!-- Validation errors -->
+    <string name="error_title_required">Por favor ingresa un título.</string>
+    <string name="error_hour_required">Por favor selecciona una hora.</string>
+    <string name="error_date_required">Por favor selecciona una fecha.</string>
+    <string name="error_date_past">La fecha no puede ser en el pasado.</string>
+    <string name="error_save_failed">Ocurrió un error al guardar.</string>
+
+    <!-- CalendarScreen -->
+    <string name="calendar_modify">Modificar:</string>
+    <string name="calendar_mark">MARCAR</string>
+    <string name="calendar_add_activity">AÑADIR ACTIVIDAD</string>
+    <string name="calendar_day_marked">Día marcado</string>
+
+    <!-- SettingsScreen -->
+    <string name="settings_dark_mode">Modo oscuro</string>
+    <string name="settings_typography">Tipografía</string>
+    <string name="settings_font_weight">Grosor de letra</string>
+    <string name="settings_colors">Colores de Interfaz</string>
+    <string name="settings_logout">Cerrar sesión</string>
+    <string name="settings_logout_confirm">¿Estás seguro de que deseas cerrar sesión?</string>
+    <string name="settings_logout_exit">Salir</string>
+    <string name="settings_cancel">Cancelar</string>
+    <string name="settings_connect_google">Conectar con Google</string>
+    <string name="settings_google_soon">No es posible ingresar con Google. Funcionalidad próxima</string>
+    <string name="settings_coming_soon">Funcionalidad próxima</string>
+    <string name="settings_yes"> sí</string>
+    <string name="settings_no"> no</string>
+    <string name="settings_large"> Grande</string>
+    <string name="settings_small"> Pequeño</string>
+    <string name="settings_bold"> Grueso</string>
+    <string name="settings_thin"> Delgado</string>
+
+    <!-- EventListScreen -->
+    <string name="welcome_user">Bienvenido, %1$s</string>
+    <string name="no_activities">Sin actividades para hoy</string>
+    <string name="activity_deleted">Actividad eliminada</string>
+    <string name="task_pinned">📌 Tarea marcada como importante</string>
+    <string name="task_unpinned">Tarea desmarcada</string>
+    <string name="reminder_activated">Recordatorio activado</string>
+    <string name="profile_title">Perfil de Usuario</string>
+    <string name="profile_email">Correo: %1$s</string>
+    <string name="profile_phone">Teléfono: %1$s</string>
+    <string name="profile_age">Edad: %1$s años</string>
+    <string name="profile_edit">Editar cuenta</string>
+    <string name="profile_logout">Cerrar sesión</string>
+    <string name="profile_back">Volver al menú</string>
+    <string name="account_updated">Cuenta actualizada</string>
+
+    <!-- Auth errors -->
+    <string name="auth_error_default">Error inesperado. ¡Inténtalo de nuevo!</string>
 </resources>
